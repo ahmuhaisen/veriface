@@ -1,0 +1,691 @@
+{
+  "info": {
+    "_postman_id": "78e94440-6ffa-5c38-9bcb-d11db757441b",
+    "name": "Veriface API v1",
+    "description": "Local test collection for the Veriface service (contracts/openapi.yaml).\n\n1. Start the service: `service\\target-lead\\release\\veriface.exe run --config tools\\console\\.dev\\config.toml`.\n2. Import this collection and the environment `tools/console/.dev/veriface.local.postman_environment.json` (git-ignored, holds your dev API key), then select the environment.\n3. File parts point at testdata/ on this machine; replace them with your own photos in each request's Body tab.\n\nQuality/verification RESULTS (including rejections) are HTTP 200; errors are RFC 9457 problem+json. Thresholds are provisional (calibration.status = provisional). Images are processed in memory and never stored.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8080"
+    },
+    {
+      "key": "profile",
+      "value": "standard"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health & info",
+      "item": [
+        {
+          "name": "Live",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/live",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "live"
+              ],
+              "query": []
+            },
+            "description": "Process is up."
+          }
+        },
+        {
+          "name": "Ready",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health",
+                "ready"
+              ],
+              "query": []
+            },
+            "description": "Models loaded, integrity verified, warm-up done."
+          }
+        },
+        {
+          "name": "Info",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/info",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "info"
+              ],
+              "query": []
+            },
+            "description": "Service, catalogue and model versions (with licence review status)."
+          }
+        },
+        {
+          "name": "Metrics (Prometheus)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/metrics",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "metrics"
+              ],
+              "query": []
+            },
+            "description": "Prometheus text metrics. No biometric data."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "List profiles",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/profiles",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "profiles"
+              ],
+              "query": []
+            },
+            "description": "Profiles this API key may use."
+          }
+        },
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/profiles/{{profile}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "profiles",
+                "{{profile}}"
+              ],
+              "query": []
+            },
+            "description": "Full thresholds of one profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quality (selfie)",
+      "item": [
+        {
+          "name": "Quality - good portrait",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/quality?profile={{profile}}&output=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "quality"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "disabled": false,
+                  "description": "standard | icao-strict | fixtures (dev only). Omit for the key's default."
+                },
+                {
+                  "key": "output",
+                  "value": "true",
+                  "disabled": false,
+                  "description": "Include the normalised output image (base64 JPEG)."
+                }
+              ]
+            },
+            "description": "Assess a selfie. Replace the image with your own.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "testdata/images/nasa-watkins.jpg",
+                  "description": "JPEG, PNG or WebP"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quality - group photo (rejected: SINGLE_FACE)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/quality?profile={{profile}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "quality"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "disabled": false,
+                  "description": "standard | icao-strict | fixtures (dev only). Omit for the key's default."
+                }
+              ]
+            },
+            "description": "Three faces: expect verdict rejected, reason SINGLE_FACE.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "testdata/images/nasa-exp49-crew.jpg",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Quality - head rotated 15 deg (rejected: HEAD_POSE_ROLL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/quality?profile={{profile}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "quality"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "disabled": false,
+                  "description": "standard | icao-strict | fixtures (dev only). Omit for the key's default."
+                }
+              ]
+            },
+            "description": "Expect HEAD_POSE_ROLL failure.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "testdata/images/nasa-glover-rollcw15.jpg",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Document portrait",
+      "item": [
+        {
+          "name": "Document - ID card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/document-portraits?profile={{profile}}&output=true",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "document-portraits"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "disabled": false,
+                  "description": "standard | icao-strict | fixtures (dev only). Omit for the key's default."
+                },
+                {
+                  "key": "output",
+                  "value": "true",
+                  "disabled": false,
+                  "description": "Include the normalised output image (base64 JPEG)."
+                }
+              ]
+            },
+            "description": "Find, straighten and assess the portrait on an ID card photo. Synthetic cards are small: use profile=fixtures to pass the size check.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "testdata/documents/doc-watkins.jpg",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Document - upside-down card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/document-portraits?profile={{profile}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "document-portraits"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "{{profile}}",
+                  "disabled": false,
+                  "description": "standard | icao-strict | fixtures (dev only). Omit for the key's default."
+                }
+              ]
+            },
+            "description": "Orientation search: expect document.orientationDegrees = 180.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "document",
+                  "type": "file",
+                  "src": "testdata/documents/doc-watkins-rot180.jpg",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Verification (selfie vs ID)",
+      "item": [
+        {
+          "name": "Verify - same person",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/verifications?profile=fixtures&referenceKind=auto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "verifications"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "fixtures",
+                  "disabled": false,
+                  "description": "fixtures = dev-only; use standard for real photos"
+                },
+                {
+                  "key": "referenceKind",
+                  "value": "auto",
+                  "disabled": false,
+                  "description": "auto | document | portrait"
+                },
+                {
+                  "key": "operatingPoint",
+                  "value": "fmr-1e-4",
+                  "disabled": true,
+                  "description": "fmr-1e-3 | fmr-1e-4 (default)"
+                }
+              ]
+            },
+            "description": "Probe = selfie, reference = ID card photo. With testdata use profile=fixtures (expect match; outcome review because the card reuses the same photo).",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "probe",
+                  "type": "file",
+                  "src": "testdata/images/nasa-watkins.jpg",
+                  "description": "selfie"
+                },
+                {
+                  "key": "reference",
+                  "type": "file",
+                  "src": "testdata/documents/doc-watkins-glare.jpg",
+                  "description": "ID card photo or portrait"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify - different people",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/verifications?profile=fixtures&referenceKind=auto",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "verifications"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "fixtures",
+                  "disabled": false,
+                  "description": ""
+                },
+                {
+                  "key": "referenceKind",
+                  "value": "auto",
+                  "disabled": false,
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Expect decision no_match, outcome rejected.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "probe",
+                  "type": "file",
+                  "src": "testdata/images/nasa-glover.jpg",
+                  "description": "selfie"
+                },
+                {
+                  "key": "reference",
+                  "type": "file",
+                  "src": "testdata/documents/doc-watkins.jpg",
+                  "description": "ID card"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify - low-res card (retake)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/verifications?profile=standard",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "verifications"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "standard",
+                  "disabled": false,
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Reference too small/blurry: expect outcome retake, score null.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "probe",
+                  "type": "file",
+                  "src": "testdata/images/nasa-almansoori.jpg",
+                  "description": "selfie"
+                },
+                {
+                  "key": "reference",
+                  "type": "file",
+                  "src": "testdata/documents/doc-almansoori-lowres.jpg",
+                  "description": "ID card"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Verify - your own photos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/verifications?profile=standard&referenceKind=document",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "verifications"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "standard",
+                  "disabled": false,
+                  "description": ""
+                },
+                {
+                  "key": "referenceKind",
+                  "value": "document",
+                  "disabled": false,
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Select your own selfie and a close-up photo of your ID in the Body tab. Uses the standard profile.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "probe",
+                  "type": "file",
+                  "src": "",
+                  "description": "your selfie"
+                },
+                {
+                  "key": "reference",
+                  "type": "file",
+                  "src": "",
+                  "description": "photo of your ID card"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Errors (examples)",
+      "item": [
+        {
+          "name": "No API key (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/info",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "info"
+              ],
+              "query": []
+            },
+            "description": "Expect problem+json unauthorized."
+          }
+        },
+        {
+          "name": "Unknown profile (404)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/v1/quality?profile=does-not-exist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "quality"
+              ],
+              "query": [
+                {
+                  "key": "profile",
+                  "value": "does-not-exist",
+                  "disabled": false,
+                  "description": ""
+                }
+              ]
+            },
+            "description": "Expect profile-not-found.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": "testdata/images/nasa-watkins.jpg",
+                  "description": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

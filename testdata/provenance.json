@@ -1,0 +1,1309 @@
+{
+  "portraits": [
+    {
+      "id": "nasa-glover",
+      "file": "images/nasa-glover.jpg",
+      "size": "768x1024",
+      "sha256": "37c020be21d0018da041799bbdc201c8e3ac7ac2633a705468760cc53ecfce5b",
+      "page": "https://commons.wikimedia.org/wiki/File:Victor_J._Glover_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Victor_J._Glover_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "704fc3f12fde82adb3bcd29b66b43e725382ded7",
+      "author": "NASA Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-watkins",
+      "file": "images/nasa-watkins.jpg",
+      "size": "819x1024",
+      "sha256": "6f72a3bc961388a2d5c4255adc5930bc02d9e2aa4032b45df74fec8b0146f47a",
+      "page": "https://commons.wikimedia.org/wiki/File:Jessica_Watkins_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/8/81/Jessica_Watkins_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "459463a92a15f4a243c4edb20aafb7ff69af6574",
+      "author": "NASA/Bill Stafford Bill Stafford",
+      "note": ""
+    },
+    {
+      "id": "nasa-chari",
+      "file": "images/nasa-chari.jpg",
+      "size": "768x1024",
+      "sha256": "a6d50ad3a5328e0a8cbfe4c4a2ed648603de9b1d2bba5069f1d56ad7949b1a6f",
+      "page": "https://commons.wikimedia.org/wiki/File:Raja_Chari_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/9/9e/Raja_Chari_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "20dbe4257f574a307aaaa0c58f9a4d1e567e84c7",
+      "author": "Photographer: NASA / Robert Markowitz Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-menon",
+      "file": "images/nasa-menon.jpg",
+      "size": "819x1024",
+      "sha256": "dfee2c3da2b664fb3cd4af3c7790e673c836afd3889154df1a6297f8bb1160df",
+      "page": "https://commons.wikimedia.org/wiki/File:Anil_Menon_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/9/91/Anil_Menon_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "08bd951d2b67620f4e8c20741b96f7bbf6c890aa",
+      "author": "NASA Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-moghbeli",
+      "file": "images/nasa-moghbeli.jpg",
+      "size": "819x1024",
+      "sha256": "ad21d9cf5e81d99c74736c8c6f049649f342b06c99a6f74c73ba1b218caa6812",
+      "page": "https://commons.wikimedia.org/wiki/File:Jasmin_Moghbeli_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/d/dc/Jasmin_Moghbeli_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "69a05dd33b1724824c2a0f1e8484fcadd17e0b39",
+      "author": "NASA/Bill Stafford Bill Stafford",
+      "note": ""
+    },
+    {
+      "id": "nasa-almansoori",
+      "file": "images/nasa-almansoori.jpg",
+      "size": "819x1024",
+      "sha256": "6bcdab5ed4e72863ec1739baf7f0541b16438ba11e6a2f8e4ae551d7fcb46e31",
+      "page": "https://commons.wikimedia.org/wiki/File:Hazzaa_AlMansoori.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/4/42/Hazzaa_AlMansoori.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "fff8b30845d588c5efff80aa9abe1926ce6835df",
+      "author": "Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-rubio",
+      "file": "images/nasa-rubio.jpg",
+      "size": "819x1024",
+      "sha256": "0be01df5cd0fe795d78a535cf9af58eaf84e1387d14d571c33c7ec5c8b093621",
+      "page": "https://commons.wikimedia.org/wiki/File:Frank_Rubio_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/e/e1/Frank_Rubio_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "89b5f2667652e0a378e8870634a0e7f62aa5a992",
+      "author": "NASA/Bill Stafford Bill Stafford",
+      "note": ""
+    },
+    {
+      "id": "nasa-ochoa",
+      "file": "images/nasa-ochoa.jpg",
+      "size": "768x1024",
+      "sha256": "3e702678889d2c349aa1770fb9a835326387b5181a53da21f58b5307701dc8f9",
+      "page": "https://commons.wikimedia.org/wiki/File:Ellen_Ochoa,_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/f/fe/Ellen_Ochoa%2C_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "8f3ce8d0769f93c14d514967ee5ee7f0db94911a",
+      "author": "NASA/Bill Stafford Bill Stafford",
+      "note": ""
+    },
+    {
+      "id": "nasa-hoshide",
+      "file": "images/nasa-hoshide.jpg",
+      "size": "819x1024",
+      "sha256": "78a9efe397b021e8e4cd0d789beb7d742527ab67fb3480e9ed49d162df424fad",
+      "page": "https://commons.wikimedia.org/wiki/File:Akihiko_Hoshide,_official_portrait_(2020).jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Akihiko_Hoshide%2C_official_portrait_%282020%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "48bade0ffbb1e1e7c5e9bbce176cb6db5e0e39e9",
+      "author": "NASA Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-cardman",
+      "file": "images/nasa-cardman.jpg",
+      "size": "768x1024",
+      "sha256": "f628b71225f39c3101215ba6fd8e4ffae3e15ed6a7f64f0ee3833733df33e1ce",
+      "page": "https://commons.wikimedia.org/wiki/File:Zena_Cardman_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/4/4b/Zena_Cardman_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "db5ce17898a76a044e60dcecdbcac27ce46c84fe",
+      "author": "Photographer: NASA / Robert Markowitz Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-hammock",
+      "file": "images/nasa-hammock.jpg",
+      "size": "768x1024",
+      "sha256": "c58d5f30090b6fd04cd93f9d34b0d847be177b6fbaccdcb566a28b74e7014124",
+      "page": "https://commons.wikimedia.org/wiki/File:Christina_M._Hammock_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Christina_M._Hammock_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "8d70b051fa71fa4282a96af64cd3250e5979a073",
+      "author": "NASA/Robert Markowitz Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-cassada",
+      "file": "images/nasa-cassada.jpg",
+      "size": "768x1024",
+      "sha256": "c6cb907ca627571c013aba66f4c0816d25d57ca13bedc11f2c1f64fddd8b3254",
+      "page": "https://commons.wikimedia.org/wiki/File:Josh_A._Cassada_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/8/85/Josh_A._Cassada_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "de102f0dc66bfd20c7b4842e2997b7607031fb7d",
+      "author": "NASA Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-hoburg",
+      "file": "images/nasa-hoburg.jpg",
+      "size": "768x1024",
+      "sha256": "d933e753fd4ab4a514cb096c209ad78fb03946835cfa19d2b581ce5ad2523c63",
+      "page": "https://commons.wikimedia.org/wiki/File:Warren_Hoburg_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/c/c0/Warren_Hoburg_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "99cb4ab0d1b1c634b7a5d4d892b43c1bcd3e03bb",
+      "author": "Photographer: NASA / Robert Markowitz Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-hansen",
+      "file": "images/nasa-hansen.jpg",
+      "size": "819x1024",
+      "sha256": "e862a82918c13b3e168f4002dfc23706ab0cd0e9efdb6bc09b8ad3ecf345db38",
+      "page": "https://commons.wikimedia.org/wiki/File:Jeremy_Hansen_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/4/42/Jeremy_Hansen_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "f2973af23d2bcfd7bb872defb186ed6e7be363cd",
+      "author": "NASA Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-harris",
+      "file": "images/nasa-harris.jpg",
+      "size": "819x1024",
+      "sha256": "3bad38781bcbae2b267721eb91722d96a471f55188e11198d19b77292054f0a1",
+      "page": "https://commons.wikimedia.org/wiki/File:Bernard_A._Harris_-_Official_Portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/9/96/Bernard_A._Harris_-_Official_Portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "a8f4fc2e8ca79d05ec47193e8a8e2784b3d295fe",
+      "author": "NASA",
+      "note": ""
+    },
+    {
+      "id": "nasa-isaacman",
+      "file": "images/nasa-isaacman.jpg",
+      "size": "819x1024",
+      "sha256": "39aaa645f141b6527c0db25bce8f8be5461042e8babe92b80becfd2d51128a70",
+      "page": "https://commons.wikimedia.org/wiki/File:Jared_isaacman_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/2/23/Jared_isaacman_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "ecce61b429447f5e9e19c87b630bb7c938b37852",
+      "author": "NASABill Ingalls",
+      "note": ""
+    },
+    {
+      "id": "nasa-caldwell",
+      "file": "images/nasa-caldwell.jpg",
+      "size": "819x1024",
+      "sha256": "14d1f8eb023d65ad7ddb9a45bed97fbe7fd6488a4ccac1d3eb5fbd48643df00d",
+      "page": "https://commons.wikimedia.org/wiki/File:Tracy_E_Caldwell_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/2/2e/Tracy_E_Caldwell_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "88b1f7da42c021be891a7ace23c6ed45187d6976",
+      "author": "NASA",
+      "note": "NASA JSC2007-E-033311"
+    },
+    {
+      "id": "nasa-lovell-1964",
+      "file": "images/nasa-lovell-1964.jpg",
+      "size": "819x1024",
+      "sha256": "d70e6aa2da559e6afb148b9ddbb2914c07a3eac7f2b3720980afedf739760701",
+      "page": "https://commons.wikimedia.org/wiki/File:Jim_Lovell_official_1964_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/9/98/Jim_Lovell_official_1964_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "87e2c068825f04b04392ed73b7b5ec9bdb0664f0",
+      "author": "NASA",
+      "note": "1964 colour film scan"
+    },
+    {
+      "id": "nasa-dominick",
+      "file": "images/nasa-dominick.jpg",
+      "size": "768x1024",
+      "sha256": "ab8c8af4a56be5cede55d27fc6f70c151c145f4d7fb776ea67962deca385ce71",
+      "page": "https://commons.wikimedia.org/wiki/File:Matthew_Dominick_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/7/73/Matthew_Dominick_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "9dba6e1fa1baa1572fb098c19e131d9b2b00e500",
+      "author": "Photographer: NASA / Robert Markowitz Robert Markowitz",
+      "note": ""
+    },
+    {
+      "id": "nasa-newman",
+      "file": "images/nasa-newman.jpg",
+      "size": "791x1024",
+      "sha256": "025745fc4fc0e1f9a221ab4e240b1a2dd2aabe1dc1506627ca9c4f13dc1ef1e9",
+      "page": "https://commons.wikimedia.org/wiki/File:Dava_Newman,_official_portrait.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/4/45/Dava_Newman%2C_official_portrait.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "7f75dbd4ee20f412d5fb11f6e6250e132dbe8359",
+      "author": "NASA/Bill Ingalls Bill Ingalls",
+      "note": ""
+    },
+    {
+      "id": "nasa-meir",
+      "file": "images/nasa-meir.jpg",
+      "size": "768x1024",
+      "sha256": "f781b21dfba196ad2b0ac486d251a43fe762f5ab0209137ba19d32a029c540bc",
+      "page": "https://commons.wikimedia.org/wiki/File:Jessica_Meir_(portrait_crop).jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/6/61/Jessica_Meir_%28portrait_crop%29.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "a03b3b36ee26d5b048c328d38ad0e7530a67b11b",
+      "author": "NASA/Bill Ingalls Bill Ingalls",
+      "note": ""
+    },
+    {
+      "id": "nasa-exp49-crew",
+      "file": "images/nasa-exp49-crew.jpg",
+      "size": "1024x819",
+      "sha256": "4b06bc88412da504f56acd5a35c3dddf33e2f0f318dc14e3c01cdb45bc82e2f9",
+      "page": "https://commons.wikimedia.org/wiki/File:Expedition_49_crew_portrait_with_astronaut_Kate_Rubins,_cosmonaut_Anatoly_Ivanishin,_and_astronaut_Takuya_Onishi.jpg",
+      "original": "https://upload.wikimedia.org/wikipedia/commons/5/54/Expedition_49_crew_portrait_with_astronaut_Kate_Rubins%2C_cosmonaut_Anatoly_Ivanishin%2C_and_astronaut_Takuya_Onishi.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
+      "originalSha1": "4f0e865a65d97ce127e4cd6ef090582bb6eda6be",
+      "author": "NASA Robert Markowitz",
+      "note": "group photo, three faces (multi-face case)"
+    }
+  ],
+  "documents": [
+    {
+      "id": "doc-watkins",
+      "file": "documents/doc-watkins.jpg",
+      "size": "1600x1200",
+      "sha256": "b5c673cf8098fc1f8b6cb07e18abdd097620dc3968d6fff94e0aefe758691e14",
+      "sources": [
+        "nasa-watkins"
+      ],
+      "variant": "upright",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            242.1999969482422,
+            236.10000610351562
+          ],
+          [
+            1291.5,
+            271.79998779296875
+          ],
+          [
+            1269.0,
+            934.0999755859375
+          ],
+          [
+            219.60000610351562,
+            898.2999877929688
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              279.3999938964844,
+              362.0
+            ],
+            [
+              559.7000122070312,
+              371.6000061035156
+            ],
+            [
+              546.9000244140625,
+              745.2999877929688
+            ],
+            [
+              266.70001220703125,
+              735.7000122070312
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1097.199951171875,
+              608.0999755859375
+            ],
+            [
+              1221.699951171875,
+              612.4000244140625
+            ],
+            [
+              1216.0999755859375,
+              778.4000244140625
+            ],
+            [
+              1091.5,
+              774.2000122070312
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-almansoori",
+      "file": "documents/doc-almansoori.jpg",
+      "size": "1600x1200",
+      "sha256": "fd2d931438e1512908f934e5c21fa44626f7fbd86f25df22a33cae459c259aa9",
+      "sources": [
+        "nasa-almansoori"
+      ],
+      "variant": "upright",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            228.3000030517578,
+            341.0
+          ],
+          [
+            1275.4000244140625,
+            262.29998779296875
+          ],
+          [
+            1325.0,
+            923.0999755859375
+          ],
+          [
+            278.0,
+            1001.7999877929688
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              279.1000061035156,
+              462.20001220703125
+            ],
+            [
+              558.7000122070312,
+              441.20001220703125
+            ],
+            [
+              586.7000122070312,
+              814.0
+            ],
+            [
+              307.1000061035156,
+              835.0
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1118.800048828125,
+              617.7999877929688
+            ],
+            [
+              1243.0,
+              608.5
+            ],
+            [
+              1255.5,
+              774.2000122070312
+            ],
+            [
+              1131.199951171875,
+              783.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-menon",
+      "file": "documents/doc-menon.jpg",
+      "size": "1600x1200",
+      "sha256": "9d0b4def19b7518f4fe959977e44f3aedd8300714e65864d069f6614f8bc964f",
+      "sources": [
+        "nasa-menon"
+      ],
+      "variant": "upright",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            280.29998779296875,
+            281.5
+          ],
+          [
+            1328.699951171875,
+            224.0
+          ],
+          [
+            1365.0,
+            885.5999755859375
+          ],
+          [
+            316.6000061035156,
+            943.2000122070312
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              328.6000061035156,
+              403.70001220703125
+            ],
+            [
+              608.5999755859375,
+              388.29998779296875
+            ],
+            [
+              629.0999755859375,
+              761.7000122070312
+            ],
+            [
+              349.1000061035156,
+              777.0
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1165.0,
+              576.2000122070312
+            ],
+            [
+              1289.4000244140625,
+              569.4000244140625
+            ],
+            [
+              1298.5,
+              735.2999877929688
+            ],
+            [
+              1174.0999755859375,
+              742.0999755859375
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-ochoa-scan",
+      "file": "documents/doc-ochoa-scan.jpg",
+      "size": "1011x638",
+      "sha256": "c967e988744cac59daad60279820f096e4a7b9935640f88ac817c1ddd23492f3",
+      "sources": [
+        "nasa-ochoa"
+      ],
+      "variant": "flat scan, card only",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1011.0,
+            0.0
+          ],
+          [
+            1011.0,
+            638.0
+          ],
+          [
+            0.0,
+            638.0
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              40.0,
+              120.0
+            ],
+            [
+              310.0,
+              120.0
+            ],
+            [
+              310.0,
+              480.0
+            ],
+            [
+              40.0,
+              480.0
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              835.0,
+              330.0
+            ],
+            [
+              955.0,
+              330.0
+            ],
+            [
+              955.0,
+              490.0
+            ],
+            [
+              835.0,
+              490.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-watkins-rot90",
+      "file": "documents/doc-watkins-rot90.jpg",
+      "size": "1200x1600",
+      "sha256": "40dc410a964a21bfd2d45b4766746552c1a0e487a7ccfc3f24a467c3866e5053",
+      "sources": [
+        "nasa-watkins"
+      ],
+      "variant": "rotated 90 cw",
+      "expected": "main 1, ghost 1, rotation 90",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 90,
+        "cardCorners": [
+          [
+            963.4000244140625,
+            241.5
+          ],
+          [
+            894.4000244140625,
+            1289.199951171875
+          ],
+          [
+            233.1999969482422,
+            1245.699951171875
+          ],
+          [
+            302.20001220703125,
+            197.89999389648438
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              836.2999877929688,
+              274.70001220703125
+            ],
+            [
+              817.9000244140625,
+              554.5
+            ],
+            [
+              444.79998779296875,
+              530.0
+            ],
+            [
+              463.20001220703125,
+              250.1999969482422
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              564.4000244140625,
+              1084.300048828125
+            ],
+            [
+              556.2000122070312,
+              1208.699951171875
+            ],
+            [
+              390.3999938964844,
+              1197.699951171875
+            ],
+            [
+              398.6000061035156,
+              1073.4000244140625
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-watkins-rot180",
+      "file": "documents/doc-watkins-rot180.jpg",
+      "size": "1600x1200",
+      "sha256": "831f19a7fd6435d0035c6d9d3806d407f89501fdf1d35b7320a685b2e77e6203",
+      "sources": [
+        "nasa-watkins"
+      ],
+      "variant": "rotated 180",
+      "expected": "main 1, ghost 1, rotation 180",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 180,
+        "cardCorners": [
+          [
+            1296.300048828125,
+            926.9000244140625
+          ],
+          [
+            248.0,
+            986.2999877929688
+          ],
+          [
+            210.5,
+            324.70001220703125
+          ],
+          [
+            1258.800048828125,
+            265.29998779296875
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              1247.800048828125,
+              804.7999877929688
+            ],
+            [
+              967.7999877929688,
+              820.5999755859375
+            ],
+            [
+              946.7000122070312,
+              447.3999938964844
+            ],
+            [
+              1226.5999755859375,
+              431.5
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              411.1000061035156,
+              633.7000122070312
+            ],
+            [
+              286.70001220703125,
+              640.7999877929688
+            ],
+            [
+              277.29998779296875,
+              474.8999938964844
+            ],
+            [
+              401.70001220703125,
+              467.79998779296875
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-watkins-rot270",
+      "file": "documents/doc-watkins-rot270.jpg",
+      "size": "1200x1600",
+      "sha256": "74e7d6079919b52bd9e7bb8c4767e19215cbd3c4ee258b8700be555e6b58756f",
+      "sources": [
+        "nasa-watkins"
+      ],
+      "variant": "rotated 270 cw",
+      "expected": "main 1, ghost 1, rotation 270",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 270,
+        "cardCorners": [
+          [
+            293.70001220703125,
+            1321.4000244140625
+          ],
+          [
+            278.1000061035156,
+            271.5
+          ],
+          [
+            940.5999755859375,
+            261.6000061035156
+          ],
+          [
+            956.2000122070312,
+            1311.5
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              417.70001220703125,
+              1278.0
+            ],
+            [
+              413.5,
+              997.5999755859375
+            ],
+            [
+              787.4000244140625,
+              992.0
+            ],
+            [
+              791.5,
+              1272.4000244140625
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              623.5,
+              449.20001220703125
+            ],
+            [
+              621.5999755859375,
+              324.5
+            ],
+            [
+              787.7999877929688,
+              322.1000061035156
+            ],
+            [
+              789.5999755859375,
+              446.70001220703125
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-almansoori-perspective",
+      "file": "documents/doc-almansoori-perspective.jpg",
+      "size": "1600x1200",
+      "sha256": "f9f8a30c9f823446dcd72c644666f7b7fe2ca7423d57346828da5bcdd2fce183",
+      "sources": [
+        "nasa-almansoori"
+      ],
+      "variant": "perspective warp",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            377.1000061035156,
+            268.1000061035156
+          ],
+          [
+            1337.0999755859375,
+            301.6000061035156
+          ],
+          [
+            1274.9000244140625,
+            874.2000122070312
+          ],
+          [
+            354.8999938964844,
+            830.7000122070312
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              409.70001220703125,
+              378.8999938964844
+            ],
+            [
+              660.5999755859375,
+              388.20001220703125
+            ],
+            [
+              641.2999877929688,
+              708.0999755859375
+            ],
+            [
+              396.29998779296875,
+              697.2000122070312
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1138.0,
+              596.9000244140625
+            ],
+            [
+              1251.199951171875,
+              601.5999755859375
+            ],
+            [
+              1236.4000244140625,
+              743.2999877929688
+            ],
+            [
+              1124.4000244140625,
+              738.2999877929688
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-watkins-glare",
+      "file": "documents/doc-watkins-glare.jpg",
+      "size": "1600x1200",
+      "sha256": "7113ccc7553383dcf1c2ea43e42fe7414ed31d93dcec24b764ce6aba6d87af7e",
+      "sources": [
+        "nasa-watkins"
+      ],
+      "variant": "glare spot over portrait",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            328.70001220703125,
+            225.8000030517578
+          ],
+          [
+            1377.5999755859375,
+            275.29998779296875
+          ],
+          [
+            1346.300048828125,
+            937.0999755859375
+          ],
+          [
+            297.5,
+            887.7000122070312
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              364.29998779296875,
+              352.20001220703125
+            ],
+            [
+              644.5,
+              365.5
+            ],
+            [
+              626.7999877929688,
+              738.9000244140625
+            ],
+            [
+              346.70001220703125,
+              725.7000122070312
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1178.800048828125,
+              609.0
+            ],
+            [
+              1303.300048828125,
+              614.9000244140625
+            ],
+            [
+              1295.5,
+              780.9000244140625
+            ],
+            [
+              1171.0,
+              775.0
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-menon-blur",
+      "file": "documents/doc-menon-blur.jpg",
+      "size": "1600x1200",
+      "sha256": "8b1dd916e909eaeebe04ee556c38b2fc6fad7fbb01d7f466c9e4013e5f242a84",
+      "sources": [
+        "nasa-menon"
+      ],
+      "variant": "gaussian blur sigma 4",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            292.0,
+            273.8999938964844
+          ],
+          [
+            1340.4000244140625,
+            214.39999389648438
+          ],
+          [
+            1377.9000244140625,
+            875.9000244140625
+          ],
+          [
+            329.6000061035156,
+            935.4000244140625
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              340.6000061035156,
+              395.8999938964844
+            ],
+            [
+              620.5,
+              380.0
+            ],
+            [
+              641.7000122070312,
+              753.2999877929688
+            ],
+            [
+              361.79998779296875,
+              769.2000122070312
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1177.300048828125,
+              566.9000244140625
+            ],
+            [
+              1301.699951171875,
+              559.9000244140625
+            ],
+            [
+              1311.0999755859375,
+              725.7999877929688
+            ],
+            [
+              1186.699951171875,
+              732.7999877929688
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-almansoori-lowres",
+      "file": "documents/doc-almansoori-lowres.jpg",
+      "size": "400x300",
+      "sha256": "d73d2437e03ef803e37c62a39a2368276ad9f2ea3601eccbc9fefbb78aa8d82b",
+      "sources": [
+        "nasa-almansoori"
+      ],
+      "variant": "low resolution (400x300)",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            53.0,
+            86.30000305175781
+          ],
+          [
+            314.70001220703125,
+            65.9000015258789
+          ],
+          [
+            327.6000061035156,
+            231.0
+          ],
+          [
+            65.9000015258789,
+            251.39999389648438
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              65.80000305175781,
+              116.5
+            ],
+            [
+              135.6999969482422,
+              111.0999984741211
+            ],
+            [
+              142.89999389648438,
+              204.3000030517578
+            ],
+            [
+              73.0,
+              209.6999969482422
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              275.79998779296875,
+              154.8000030517578
+            ],
+            [
+              306.8999938964844,
+              152.39999389648438
+            ],
+            [
+              310.1000061035156,
+              193.8000030517578
+            ],
+            [
+              279.0,
+              196.3000030517578
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-watkins-jpeg",
+      "file": "documents/doc-watkins-jpeg.jpg",
+      "size": "1600x1200",
+      "sha256": "fe5bce26e77158efc97278f1bdf5d4d77767c57da814c2448e31210535182941",
+      "sources": [
+        "nasa-watkins"
+      ],
+      "variant": "heavy JPEG (quality 8)",
+      "expected": "main 1, ghost 1, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 1,
+        "ghostPortraits": 1,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            264.20001220703125,
+            251.8000030517578
+          ],
+          [
+            1311.5,
+            327.5
+          ],
+          [
+            1263.699951171875,
+            988.4000244140625
+          ],
+          [
+            216.39999389648438,
+            912.7000122070312
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              296.70001220703125,
+              379.1000061035156
+            ],
+            [
+              576.2999877929688,
+              399.3999938964844
+            ],
+            [
+              549.4000244140625,
+              772.2999877929688
+            ],
+            [
+              269.70001220703125,
+              752.0
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": [
+          [
+            [
+              1104.5,
+              656.2000122070312
+            ],
+            [
+              1228.800048828125,
+              665.2000122070312
+            ],
+            [
+              1216.800048828125,
+              830.9000244140625
+            ],
+            [
+              1092.5,
+              821.9000244140625
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "id": "doc-noface",
+      "file": "documents/doc-noface.jpg",
+      "size": "1600x1200",
+      "sha256": "a3057e496d326a896bc8586f34ee2979de5d261492be51dc2a19ef584f4d6ddb",
+      "sources": [],
+      "variant": "no face (photo area blank)",
+      "expected": "main 0, ghost 0, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 0,
+        "ghostPortraits": 0,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            319.1000061035156,
+            279.8999938964844
+          ],
+          [
+            1368.9000244140625,
+            259.20001220703125
+          ],
+          [
+            1382.0,
+            921.5999755859375
+          ],
+          [
+            332.20001220703125,
+            942.4000244140625
+          ]
+        ],
+        "mainPortraitQuads": [],
+        "ghostPortraitQuads": []
+      }
+    },
+    {
+      "id": "doc-twofaces",
+      "file": "documents/doc-twofaces.jpg",
+      "size": "1600x1200",
+      "sha256": "60e573203017a47d651b767ce8e73caf56f00f69d224c51cad00bf2a4e14891b",
+      "sources": [
+        "nasa-chari",
+        "nasa-ochoa"
+      ],
+      "variant": "two equal main portraits",
+      "expected": "main 2, ghost 0, rotation 0",
+      "groundTruth": {
+        "mainPortraits": 2,
+        "ghostPortraits": 0,
+        "rotationCw": 0,
+        "cardCorners": [
+          [
+            283.0,
+            319.29998779296875
+          ],
+          [
+            1332.199951171875,
+            278.20001220703125
+          ],
+          [
+            1358.199951171875,
+            940.2999877929688
+          ],
+          [
+            309.0,
+            981.4000244140625
+          ]
+        ],
+        "mainPortraitQuads": [
+          [
+            [
+              329.3999938964844,
+              442.20001220703125
+            ],
+            [
+              609.5999755859375,
+              431.20001220703125
+            ],
+            [
+              624.2000122070312,
+              804.7999877929688
+            ],
+            [
+              344.0,
+              815.7999877929688
+            ]
+          ],
+          [
+            [
+              630.4000244140625,
+              430.3999938964844
+            ],
+            [
+              910.5999755859375,
+              419.3999938964844
+            ],
+            [
+              925.2000122070312,
+              793.0
+            ],
+            [
+              645.0,
+              804.0
+            ]
+          ]
+        ],
+        "ghostPortraitQuads": []
+      }
+    }
+  ],
+  "derived": [
+    {
+      "id": "nasa-glover-flip",
+      "file": "images/nasa-glover-flip.jpg",
+      "size": "768x1024",
+      "sha256": "d080020e888886073b1322e92964b721924e32c8e639bab62f2503e7970f9d64",
+      "parent": "nasa-glover",
+      "transform": "flip-horizontal",
+      "compareTo": "nasa-glover"
+    },
+    {
+      "id": "nasa-ochoa-flip",
+      "file": "images/nasa-ochoa-flip.jpg",
+      "size": "768x1024",
+      "sha256": "7e7716fc4303959c6d00a40d6822320073159351b81b2360e3f230ffad6d7d4c",
+      "parent": "nasa-ochoa",
+      "transform": "flip-horizontal",
+      "compareTo": "nasa-ochoa"
+    },
+    {
+      "id": "nasa-glover-rollcw15",
+      "file": "images/nasa-glover-rollcw15.jpg",
+      "size": "768x1024",
+      "sha256": "842332747a46f028747fe41de7686b4bb9330e73cfb860e0f4278ec87f39a6fa",
+      "parent": "nasa-glover",
+      "transform": "rotate-cw-15",
+      "compareTo": "nasa-glover"
+    },
+    {
+      "id": "nasa-glover-canvas-top",
+      "file": "images/nasa-glover-canvas-top.jpg",
+      "size": "768x2048",
+      "sha256": "d3ae773cadb72d51ec46be1bf4689f13029e86bf0ba15eccb313fb5e3a79d53a",
+      "parent": "nasa-glover",
+      "transform": "canvas-top",
+      "compareTo": null
+    },
+    {
+      "id": "nasa-glover-canvas-bottom",
+      "file": "images/nasa-glover-canvas-bottom.jpg",
+      "size": "768x2048",
+      "sha256": "d8000e423c8c63b55f00575a5b2d7977a0c72944783bf90efcb8baf26070a16f",
+      "parent": "nasa-glover",
+      "transform": "canvas-bottom",
+      "compareTo": "nasa-glover-canvas-top"
+    },
+    {
+      "id": "nasa-almansoori-canvas-top",
+      "file": "images/nasa-almansoori-canvas-top.jpg",
+      "size": "819x2048",
+      "sha256": "949171961ac144ae2e530b532a23a75715304177f34440fe32c0c76a6d8fc5ad",
+      "parent": "nasa-almansoori",
+      "transform": "canvas-top",
+      "compareTo": null
+    },
+    {
+      "id": "nasa-almansoori-canvas-bottom",
+      "file": "images/nasa-almansoori-canvas-bottom.jpg",
+      "size": "819x2048",
+      "sha256": "099bae826c02bbc7597ecf8b2c16fd36fc7610d39ad977f6ae6ed0ab8552ae87",
+      "parent": "nasa-almansoori",
+      "transform": "canvas-bottom",
+      "compareTo": "nasa-almansoori-canvas-top"
+    }
+  ]
+}

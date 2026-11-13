@@ -1,0 +1,57 @@
+[package]
+name = "face-server"
+description = "Veriface HTTP service (binary: veriface)."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lib]
+name = "face_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "veriface"
+path = "src/main.rs"
+
+[dependencies]
+face-core.workspace = true
+face-imaging.workspace = true
+face-models.workspace = true
+face-quality.workspace = true
+face-document.workspace = true
+face-verify.workspace = true
+
+axum.workspace = true
+base64.workspace = true
+clap.workspace = true
+futures-util.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+prometheus.workspace = true
+rustls-pki-types.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+subtle.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-rustls.workspace = true
+tower.workspace = true
+toml.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+uuid.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-service.workspace = true
+
+[dev-dependencies]
+# Real-engine tests use its paths and skip helpers; they skip when ORT or the models are absent.
+face-models = { workspace = true, features = ["test-support"] }
+image.workspace = true
+serde-saphyr.workspace = true
+
+[lints]
+workspace = true

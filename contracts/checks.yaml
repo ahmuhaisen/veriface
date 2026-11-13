@@ -1,0 +1,502 @@
+# Veriface — check catalogue (contract)
+#
+# This file is the single source of truth for check IDs, value semantics, prerequisites and
+# result logic. The service, the lab and every integrating project rely on it. Changing an ID
+# or a value semantic is a breaking change: bump `catalogueVersion` and tell the lead.
+#
+# Value convention: every check produces ONE number (`value`) in the stated `unit`, or null when
+# it could not be assessed. A profile gives an inclusive `min` and/or `max` for each enabled check.
+#   status = pass         if the value is within [min, max]; a missing bound is unbounded
+#   status = fail         if the value is outside the range
+#   status = undetermined if the check could not be assessed: a prerequisite has status fail or
+#                         undetermined, or the estimator was not confident enough
+#   status = skipped      if the check is disabled in the profile
+#
+# Assessments and their subjects. A check is evaluated only when its subject belongs to the
+# assessment:
+#   /v1/quality                                          -> {selfie}
+#   /v1/document-portraits, and the verification reference -> {document, portrait}
+#     The reference always goes through portrait finding, even with referenceKind=portrait
+#     (rectification is then skipped), so PORTRAIT_FOUND is always evaluated for it.
+#   verification probe                                   -> {selfie}
+#   verification risk                                    -> {pair, selfie}
+#     Risk checks (group: risk) are configured ONLY under profile.verification.risk.
+# A prerequisite is ignored when it is skipped, or when its subject is not part of the assessment.
+#
+# Geometry conventions: image coordinates, origin top-left, x to the right, y down, in pixels of
+# the decoded image after EXIF orientation has been applied. Angles are in degrees. Pose is the
+# head orientation relative to the camera-to-face line of sight (see definitions.pose), with:
+#   yaw   > 0  the face points towards image-right
+#   pitch > 0  the face points up
+#   roll  > 0  the face is rotated clockwise in the image
+
+catalogueVersion: 1
+
+# Shared numeric definitions. The service, the lab reference and the web SDK must all implement
+# these exactly; the lab's Python implementation is the reference.
+definitions:
+  pose: >-
+    Head orientation relative to the camera-to-face line of sight. Fit the 3-D landmarks to the
+    canonical face model (asset mp-canonical-face) with a weighted, scaled-orthographic
+    (weak-perspective) rigid Procrustes fit, using the asset's 33 landmark weights. Do NOT use
+    MediaPipe's perspective facial_transformation_matrix: it assumes a camera field of view, so
+    the same face reads differently depending on where it sits in the frame. The weak-perspective
+    fit does not depend on the face's position or on camera intrinsics.
+    Landmark frame for the fit: X = x, Y = -y, Z = -z, with x, y in image pixels and z the
+    landmarker's depth in the same scale (MediaPipe z < 0 is closer to the camera). The canonical
+    model frame is x right, y up, z toward the camera.
+    Decomposition: R = Rz(c) Ry(b) Rx(a), intrinsic; yaw = +b, roll = -c, pitch = -a.
+    Document portraits (subject portrait): the fit uses landmarks in the rectified, upright document
+    frame, so card tilt or rotation in the photo does not change the pose.
+  luma: >-
+    OFIQ luminance (ISO/IEC 29794-5 reference): linearise each 8-bit sRGB channel with the sRGB
+    transfer curve, compute Y = 0.2126 R + 0.7152 G + 0.0722 B (BT.709, linear), then store
+    floor(Y * 255 + 0.5). Levels below and LUMINANCE_MEAN use this linear 0-255 scale; reported
+    fractions and means are luma / 255.
+  faceSkinRegion: >-
+    Pixels classed face-skin by the segmenter inside the landmark face oval. If segmentation is
+    unavailable: the landmark face oval minus the eye, eyebrow and lip regions.
+  underExposureLevel: 25   # linear luma <= 25 is under-exposed (OFIQ darkRange, confirmed at commit d9beef82)
+  overExposureLevel: 247   # linear luma >= 247 is over-exposed (OFIQ lightRange, confirmed at commit d9beef82)
+
+subjects:
+  selfie: A live capture of the person. Used by /v1/quality and as the verification probe.
+  document: A photo or scan of an identity document (card or passport data page).
+  portrait: The face portrait found on a document, or supplied pre-cropped. Used as the verification reference.
+  pair: A probe/reference pair. Used only by /v1/verifications risk checks.
+
+statuses: [pass, fail, undetermined, skipped]
+severities: [error, warning]
+
+verdict:
+  # Quality-style verdict, per subject (selfie, document+portrait).
+  rejected: At least one enabled error-severity check has status fail.
+  undetermined: No error-severity check failed, but at least one error-severity check is undetermined.
+  accepted: Otherwise. Warning-severity checks never change the verdict.
+
+reasons:
+  # `reasons` lists failed error-severity checks; `warnings` lists failed warning-severity checks.
+  # Both are ordered by this priority (root causes first). Unlisted IDs follow in catalogue order.
+  priority:
+    - FACE_PRESENT
+    - PORTRAIT_FOUND
+    - SINGLE_FACE
+    - IMAGE_RESOLUTION
+    - HEAD_IN_FRAME
+    - INTER_EYE_DISTANCE
+    - FACE_OCCLUSION
+    - EYES_VISIBLE
+    - HEAD_POSE_YAW
+    - HEAD_POSE_PITCH
+    - HEAD_POSE_ROLL
+    - EYES_OPEN
+    - MOUTH_CLOSED
+    - EXPRESSION_NEUTRAL
+    - OVER_EXPOSURE
+    - UNDER_EXPOSURE
+    - LUMINANCE_MEAN
+    - ILLUMINATION_UNIFORMITY
+    - DYNAMIC_RANGE
+    - SHARPNESS
+    - COMPRESSION_QUALITY
+
+groups:
+  input: Properties of the uploaded image itself
+  face: Face presence and count
+  geometry: Size and position of the face in the image
+  pose: Head orientation
+  eyes: Eye visibility, openness and gaze
+  mouth: Mouth state
+  expression: Facial expression
+  occlusion: Anything covering the face
+  illumination: Exposure and lighting on the face
+  image: Technical image quality of the face region
+  background: Area behind the subject
+  document: Identity-document level checks
+  risk: Replay / presentation-attack risk signals (not certified PAD)
+
+checks:
+  # ---------------------------------------------------------------- input
+  - id: IMAGE_RESOLUTION
+    group: input
+    subjects: [selfie, document]
+    unit: px
+    value: Length of the shorter side of the decoded image.
+    prerequisites: []
+    method: deterministic
+    defaultSeverity: error
+
+  - id: COMPRESSION_QUALITY
+    group: input
+    subjects: [selfie, document]
+    unit: quality
+    value: >-
+      Estimated JPEG quality factor (0-100) derived from the file's quantisation tables.
+      100 for lossless formats (PNG, lossless WebP). Lossy WebP is estimated from its quantiser.
+    prerequisites: []
+    method: deterministic (file header)
+    defaultSeverity: warning
+    standardRef: ISO/IEC 29794-5 CompressionArtifacts (concept; different method)
+
+  # ---------------------------------------------------------------- face
+  - id: FACE_PRESENT
+    group: face
+    subjects: [selfie]
+    unit: count
+    value: Number of faces detected at or above the detector's confidence threshold.
+    prerequisites: []
+    method: model (face detector)
+    defaultSeverity: error
+
+  - id: SINGLE_FACE
+    group: face
+    subjects: [selfie]
+    unit: count
+    value: >-
+      Number of detected faces whose inter-eye distance is at least
+      profile.faceCounting.minInterEyeDistanceRatio x image width (NIST convention: 0.02).
+      Small faces in the far background are ignored.
+    prerequisites: [FACE_PRESENT]
+    method: model (face detector) + deterministic
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 SingleFacePresent
+
+  # ---------------------------------------------------------------- geometry
+  # The "primary face" is the face with the largest inter-eye distance.
+  - id: INTER_EYE_DISTANCE
+    group: geometry
+    subjects: [selfie, portrait]
+    unit: px
+    value: >-
+      Distance between the two eye centres (iris centres) of the primary face. For document
+      portraits it is measured on the rectified, upright portrait (the resolution actually available
+      for comparison), so under perspective it can differ slightly from FaceInfo.interEyeDistancePx,
+      which is in input-image coordinates.
+    prerequisites: [FACE_PRESENT, PORTRAIT_FOUND]
+    method: model (landmarks) + deterministic
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality (>= 90 px); ISO/IEC 29794-5 InterEyeDistance
+
+  - id: HEAD_IN_FRAME
+    group: geometry
+    subjects: [selfie]
+    unit: ratio
+    value: >-
+      Smallest margin between the estimated head box (crown to chin, ear to ear) and the
+      image border, divided by the head height. Negative when the head is cut off.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (landmarks) + deterministic
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 CropOfTheFaceImage
+
+  - id: EYE_MIDPOINT_HORIZONTAL
+    group: geometry
+    subjects: [selfie]
+    unit: ratio
+    value: Horizontal position of the eye midpoint divided by image width (ICAO Mh/A, 0.45-0.55).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (landmarks) + deterministic
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality
+
+  - id: EYE_MIDPOINT_VERTICAL
+    group: geometry
+    subjects: [selfie]
+    unit: ratio
+    value: Vertical position of the eye midpoint divided by image height (ICAO Mv/B, 0.30-0.50).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (landmarks) + deterministic
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality
+
+  - id: HEAD_WIDTH_RATIO
+    group: geometry
+    subjects: [selfie]
+    unit: ratio
+    value: Estimated head width divided by image width (ICAO W/A, 0.50-0.75).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (landmarks + segmentation) + deterministic
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality
+
+  - id: HEAD_HEIGHT_RATIO
+    group: geometry
+    subjects: [selfie]
+    unit: ratio
+    value: Estimated chin-to-crown height divided by image height (ICAO L/B, 0.60-0.90).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (landmarks + segmentation) + deterministic
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality
+
+  # ---------------------------------------------------------------- pose
+  - id: HEAD_POSE_YAW
+    group: pose
+    subjects: [selfie, portrait]
+    unit: deg
+    value: Signed yaw of the primary face (> 0 = face points towards image-right).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: model (landmarks) + rigid fit to the canonical face model
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality (+/-5); ISO/IEC 29794-5 HeadPose
+
+  - id: HEAD_POSE_PITCH
+    group: pose
+    subjects: [selfie, portrait]
+    unit: deg
+    value: Signed pitch of the primary face (> 0 = face points up).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: model (landmarks) + rigid fit to the canonical face model
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality (+/-5); ISO/IEC 29794-5 HeadPose
+
+  - id: HEAD_POSE_ROLL
+    group: pose
+    subjects: [selfie, portrait]
+    unit: deg
+    value: Signed in-plane rotation of the primary face (> 0 = clockwise in the image).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: model (landmarks) + deterministic
+    defaultSeverity: error
+    standardRef: ICAO TR Portrait Quality (+/-8); ISO/IEC 29794-5 HeadPose
+
+  # ---------------------------------------------------------------- eyes
+  - id: EYES_VISIBLE
+    group: eyes
+    subjects: [selfie, portrait]
+    unit: fraction
+    value: >-
+      Visible fraction (0-1) of the two eye regions, i.e. not covered by hair, frames,
+      tinted lenses, hands or objects. The worse eye counts.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: model (landmarks + segmentation)
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 EyesVisible
+
+  - id: EYES_OPEN
+    group: eyes
+    subjects: [selfie, portrait]
+    unit: score
+    value: Openness of the less-open eye, 0 (closed) to 1 (fully open).
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND, EYES_VISIBLE]
+    method: model (landmarks + blendshapes)
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 EyesOpen
+
+  - id: GAZE_FRONTAL
+    group: eyes
+    subjects: [selfie]
+    unit: deg
+    value: Angular deviation of the gaze from the camera axis, from iris position within the eye.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, EYES_VISIBLE, EYES_OPEN]
+    method: model (iris landmarks + blendshapes)
+    defaultSeverity: warning
+    experimental: true
+    standardRef: ICAO TR Portrait Quality (looking at the camera)
+
+  # ---------------------------------------------------------------- mouth / expression
+  - id: MOUTH_CLOSED
+    group: mouth
+    subjects: [selfie, portrait]
+    unit: score
+    value: Mouth openness, 0 (closed) to 1 (wide open). The profile sets a max.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: model (landmarks + blendshapes)
+    defaultSeverity: warning
+    standardRef: ISO/IEC 29794-5 MouthClosed
+
+  - id: EXPRESSION_NEUTRAL
+    group: expression
+    subjects: [selfie]
+    unit: score
+    value: Intensity of the strongest non-neutral expression (smile, frown, raised brows), 0-1. The profile sets a max.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (blendshapes)
+    defaultSeverity: warning
+    standardRef: ISO/IEC 29794-5 ExpressionNeutrality
+
+  # ---------------------------------------------------------------- occlusion
+  - id: FACE_OCCLUSION
+    group: occlusion
+    subjects: [selfie, portrait]
+    unit: fraction
+    value: >-
+      Fraction (0-1) of the face region (forehead to chin, cheek to cheek) covered by
+      something that is not skin: masks, hands, objects, hair across the face. Head
+      coverings outside the face region (e.g. religious coverings) do not count.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: model (landmarks + segmentation)
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 FaceOcclusionPrevention
+
+  - id: HEAD_COVERING
+    group: occlusion
+    subjects: [selfie]
+    unit: fraction
+    value: Fraction (0-1) of the head-top region covered by a non-hair accessory. Policy-dependent; disabled by default.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (landmarks + segmentation)
+    defaultSeverity: warning
+    standardRef: ISO/IEC 29794-5 NoHeadCoverings (ICAO allows religious coverings when the face is fully visible)
+
+  - id: EYEGLASSES
+    group: occlusion
+    subjects: [selfie]
+    unit: score
+    value: Likelihood (0-1) that the subject wears eyeglasses. Heuristic in v1.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: heuristic (landmarks + segmentation + edges)
+    defaultSeverity: warning
+    experimental: true
+
+  # ---------------------------------------------------------------- illumination (face skin region)
+  - id: LUMINANCE_MEAN
+    group: illumination
+    subjects: [selfie, portrait]
+    unit: fraction
+    value: Mean luminance (0-1) of the face skin region.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: deterministic
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 Luminance
+
+  - id: UNDER_EXPOSURE
+    group: illumination
+    subjects: [selfie, portrait]
+    unit: fraction
+    value: Fraction (0-1) of face skin pixels darker than the under-exposure level.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: deterministic
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 UnderExposurePrevention
+
+  - id: OVER_EXPOSURE
+    group: illumination
+    subjects: [selfie, portrait]
+    unit: fraction
+    value: Fraction (0-1) of face skin pixels that are clipped bright. Also catches glare on document portraits.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: deterministic
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 OverExposurePrevention
+
+  - id: DYNAMIC_RANGE
+    group: illumination
+    subjects: [selfie, portrait]
+    unit: bits
+    value: Effective dynamic range of face-region luminance, 0-8 bits.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: deterministic
+    defaultSeverity: warning
+    standardRef: ISO/IEC 29794-5 DynamicRange
+
+  - id: ILLUMINATION_UNIFORMITY
+    group: illumination
+    subjects: [selfie, portrait]
+    unit: ratio
+    value: >-
+      Darkest-to-brightest ratio (0-1) of the mean luminance of four face zones
+      (forehead, chin, left cheek, right cheek), each a square of side 0.3 x inter-eye distance.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: deterministic
+    defaultSeverity: warning
+    standardRef: ICAO TR Portrait Quality (each zone >= 50% of the brightest); ISO/IEC 29794-5 IlluminationUniformity
+
+  # ---------------------------------------------------------------- image
+  - id: SHARPNESS
+    group: image
+    subjects: [selfie, portrait]
+    unit: score
+    value: >-
+      Sharpness score 0-1 (1 = sharp) of the face region, measured after normalising the face
+      to a fixed inter-eye distance so it does not depend on image resolution. Monotonic and
+      implementation-defined. Thresholds come from lab calibration.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE, PORTRAIT_FOUND]
+    method: deterministic
+    defaultSeverity: error
+    standardRef: ISO/IEC 29794-5 Sharpness (concept; different method)
+
+  # ---------------------------------------------------------------- background
+  - id: BACKGROUND_UNIFORMITY
+    group: background
+    subjects: [selfie]
+    unit: score
+    value: Uniformity score 0-1 (1 = plain) of the background region.
+    prerequisites: [FACE_PRESENT, SINGLE_FACE]
+    method: model (segmentation) + deterministic
+    defaultSeverity: warning
+    standardRef: ISO/IEC 29794-5 BackgroundUniformity
+
+  # ---------------------------------------------------------------- document
+  - id: DOCUMENT_DETECTED
+    group: document
+    subjects: [document]
+    unit: score
+    value: >-
+      Confidence (0-1) that a document outline was found and rectified. 0 when no plausible
+      outline was found (e.g. a tight portrait crop); portrait extraction still runs. Undetermined
+      when rectification was not attempted (referenceKind=portrait).
+    prerequisites: []
+    method: deterministic (edges + quadrilateral fit)
+    defaultSeverity: warning
+
+  - id: PORTRAIT_FOUND
+    group: document
+    subjects: [document]
+    unit: count
+    value: >-
+      Number of candidate face portraits found on the document, after trying the four
+      90-degree orientations. The largest one is selected; smaller "ghost" portraits are ignored.
+    prerequisites: []
+    method: model (face detector) + deterministic
+    defaultSeverity: error
+
+  # ---------------------------------------------------------------- risk (verification only)
+  - id: PROBE_REFERENCE_DUPLICATE
+    group: risk
+    subjects: [pair]
+    unit: score
+    value: >-
+      Likelihood (0-1) that the probe is a copy of the reference portrait rather than a new capture.
+      Signals include similarity above the normal genuine range and near-identical pose and geometry.
+    prerequisites: []
+    method: deterministic over embeddings + landmarks
+    defaultSeverity: error
+
+  - id: PROBE_DOCUMENT_PRESENT
+    group: risk
+    subjects: [selfie]
+    unit: score
+    value: >-
+      Likelihood (0-1) that the selfie shows a document, card or printed photo around the face.
+      Signals include a rectangular outline enclosing the face and card-like edges.
+    prerequisites: [FACE_PRESENT]
+    method: deterministic (edges + quadrilateral fit)
+    defaultSeverity: error
+
+  - id: PROBE_SCREEN_ARTIFACTS
+    group: risk
+    subjects: [selfie]
+    unit: score
+    value: Likelihood (0-1) of screen or print recapture (moire, pixel grid, specular patterns).
+    prerequisites: [FACE_PRESENT]
+    method: deterministic (frequency analysis)
+    defaultSeverity: warning
+    experimental: true
+
+verification:
+  decision:
+    # Pure biometric comparison result.
+    undetermined: A check listed in profile.verification.requiredProbeChecks or requiredReferenceChecks did not pass, or no score could be computed.
+    match: Score >= threshold of the selected operating point.
+    no_match: Score < threshold of the selected operating point.
+  outcome:
+    # Recommended action for the integrating project. Evaluated in this order.
+    retake: A required probe or reference check has status fail (input quality problem; ask for a new capture).
+    rejected: decision = no_match.
+    review: decision = undetermined, or decision = match but an error-severity risk check failed.
+    verified: decision = match and no error-severity risk check failed.
+  score: >-
+    Cosine similarity of the two face embeddings, model-specific, in [-1, 1].
+    Never present it to end users as a percentage. Not computed (null) when the outcome is
+    retake, because a required check failed.

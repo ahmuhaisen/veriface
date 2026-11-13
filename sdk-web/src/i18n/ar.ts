@@ -1,0 +1,52 @@
+import type { Messages } from './keys';
+
+/** Default Arabic strings. */
+export const ar: Messages = {
+  'selfie.NO_FACE': 'ضع وجهك داخل الإطار البيضاوي',
+  'selfie.MULTIPLE_FACES': 'تأكد من ظهور وجهك فقط',
+  'selfie.LOW_RESOLUTION': 'دقة الكاميرا منخفضة جدًا. جرّب كاميرا أو جهازًا آخر',
+  'selfie.HEAD_OUT_OF_FRAME': 'أبقِ رأسك بالكامل داخل الإطار',
+  'selfie.TOO_CLOSE': 'ابتعد قليلًا عن الكاميرا',
+  'selfie.TOO_FAR': 'اقترب من الكاميرا',
+  'selfie.YAW_OUT_OF_RANGE': 'انظر مباشرةً إلى الكاميرا',
+  'selfie.PITCH_OUT_OF_RANGE': 'أبقِ ذقنك مستويًا وانظر إلى الأمام',
+  'selfie.ROLL_OUT_OF_RANGE': 'أبقِ رأسك مستقيمًا',
+  'selfie.EYES_CLOSED': 'أبقِ عينيك مفتوحتين',
+  'selfie.TOO_BRIGHT': 'الإضاءة قوية جدًا. تجنّب الضوء الساطع على وجهك',
+  'selfie.TOO_DARK': 'المكان مظلم جدًا. انتقل إلى مكان أكثر إضاءة',
+  'selfie.BLURRY': 'الصورة غير واضحة. ثبّت الكاميرا',
+  'selfie.HOLD_STILL': 'اثبت دون حركة',
+  'selfie.READY': 'ممتاز، جارٍ الالتقاط…',
+
+  'document.NO_PORTRAIT': 'ضع الوجه الأمامي لبطاقة الهوية داخل الإطار',
+  'document.LOW_RESOLUTION': 'دقة الكاميرا منخفضة جدًا. جرّب كاميرا أو جهازًا آخر',
+  'document.TOO_CLOSE': 'أبعد المستند قليلًا عن الكاميرا',
+  'document.TOO_FAR': 'قرّب المستند من الكاميرا',
+  'document.GLARE': 'قلّل الانعكاس: أمِل المستند قليلًا أو تجنّب الضوء المباشر',
+  'document.TOO_DARK': 'المكان مظلم جدًا. انتقل إلى مكان أكثر إضاءة',
+  'document.TOO_BRIGHT': 'الإضاءة قوية جدًا. تجنّب الضوء المباشر على المستند',
+  'document.BLURRY': 'الصورة غير واضحة. ثبّت المستند',
+  'document.HOLD_STILL': 'اثبت دون حركة',
+  'document.READY': 'رائع، جارٍ الالتقاط…',
+
+  'error.unsupported': 'هذا المتصفح لا يدعم التصوير بالكاميرا. يرجى استخدام متصفح محدَّث.',
+  'error.insecure-context': 'لا يمكن استخدام الكاميرا إلا في صفحة آمنة (HTTPS).',
+  'error.camera-permission-denied':
+    'تم رفض الوصول إلى الكاميرا. اسمح بالوصول إليها من إعدادات المتصفح ثم حاول مرة أخرى.',
+  'error.camera-not-found': 'لم يتم العثور على كاميرا مناسبة.',
+  'error.camera-unavailable': 'تعذّر تشغيل الكاميرا. أغلق التطبيقات الأخرى التي تستخدمها ثم حاول مرة أخرى.',
+  'error.asset-load-failed': 'تعذّر تحميل ملفات التقاط الوجه. يرجى المحاولة لاحقًا.',
+  'error.asset-version-mismatch': 'خدمة التقاط الوجه غير متاحة مؤقتًا. يرجى المحاولة لاحقًا.',
+  'error.invalid-options': 'لم يتم إعداد التقاط الوجه بشكل صحيح.',
+  'error.not-running': 'الكاميرا لا تعمل.',
+  'error.disposed': 'تم إغلاق التقاط الوجه.',
+  'error.internal': 'حدث خطأ ما. يرجى المحاولة مرة أخرى.',
+
+  'ui.capture': 'التقاط',
+  'ui.retake': 'إعادة الالتقاط',
+  'ui.starting': 'جارٍ تشغيل الكاميرا…',
+  'ui.captured': 'تم التقاط الصورة',
+  'ui.cameraPreview': 'معاينة الكاميرا',
+  'ui.selfieFrame': 'كاميرا الصورة الذاتية',
+  'ui.documentFrame': 'كاميرا المستند',
+};

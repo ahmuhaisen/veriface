@@ -1,0 +1,40 @@
+# Rust
+service/target*/
+**/*.rs.bk
+
+# Python lab
+lab/.venv/
+lab/.venv-mp/
+lab/**/__pycache__/
+lab/.pytest_cache/
+lab/.ruff_cache/
+lab/work/
+*.egg-info/
+
+# Web SDK
+sdk-web/node_modules/
+sdk-web/dist/
+sdk-web/coverage/
+
+# Model binaries and runtime libraries (manifest.json IS committed)
+models/**/*.onnx
+models/**/*.tflite
+models/**/*.task
+models/**/*.bin
+models/upstream/
+service/third_party/
+service/dist/
+
+# Never commit biometric data: real selfies and ID documents live outside the repo
+data/
+datasets/
+**/private/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Mobile app is kept out of this repo
+mobile/

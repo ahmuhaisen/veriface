@@ -1,0 +1,310 @@
+# Prometheus recording and alerting rules for Veriface.
+# Load with `rule_files: [alerts.yml]`. Check with `promtool check rules ops/prometheus/alerts.yml`.
+#
+# Assumptions (edit to match your deployment):
+# - the service is scraped as job="veriface" (GET /metrics);
+# - /health/ready is probed by the blackbox exporter as job="veriface-ready" (see ops/README.md);
+# - server.queue_limit = 32 (the default). The service does not export its limits, so the queue
+#   threshold below is hard-coded: change 26 (= 80% of 32) if you change queue_limit.
+# - Latency SLO: 99% of /v1/* requests complete within 5 s (a histogram bucket boundary).
+#
+# Metric names: service/crates/face-server/src/metrics.rs.
+
+groups:
+  # ------------------------------------------------------------------------------ recording
+  - name: veriface-recording
+    interval: 1m
+    rules:
+      - record: face:requests:rate5m
+        expr: sum by (job, instance, endpoint, status) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*"}[5m]))
+
+      # Share of /v1 requests slower than the 5 s SLO threshold, per window (multi-window burn rate).
+      - record: face:latency_slo_miss:ratio_rate5m
+        expr: |
+          1 - (
+            sum by (job) (rate(face_request_duration_seconds_bucket{job="veriface", endpoint=~"/v1/.*", le="5"}[5m]))
+            / clamp_min(sum by (job) (rate(face_request_duration_seconds_count{job="veriface", endpoint=~"/v1/.*"}[5m])), 1e-9)
+          )
+      - record: face:latency_slo_miss:ratio_rate30m
+        expr: |
+          1 - (
+            sum by (job) (rate(face_request_duration_seconds_bucket{job="veriface", endpoint=~"/v1/.*", le="5"}[30m]))
+            / clamp_min(sum by (job) (rate(face_request_duration_seconds_count{job="veriface", endpoint=~"/v1/.*"}[30m])), 1e-9)
+          )
+      - record: face:latency_slo_miss:ratio_rate1h
+        expr: |
+          1 - (
+            sum by (job) (rate(face_request_duration_seconds_bucket{job="veriface", endpoint=~"/v1/.*", le="5"}[1h]))
+            / clamp_min(sum by (job) (rate(face_request_duration_seconds_count{job="veriface", endpoint=~"/v1/.*"}[1h])), 1e-9)
+          )
+      - record: face:latency_slo_miss:ratio_rate6h
+        expr: |
+          1 - (
+            sum by (job) (rate(face_request_duration_seconds_bucket{job="veriface", endpoint=~"/v1/.*", le="5"}[6h]))
+            / clamp_min(sum by (job) (rate(face_request_duration_seconds_count{job="veriface", endpoint=~"/v1/.*"}[6h])), 1e-9)
+          )
+
+      # Per-check reject ratio: fail / (pass + fail + undetermined). Skipped results are excluded.
+      # `or ... * 0` keeps a 0 series for checks without failures, so the 7-day baseline is not
+      # biased towards hours with failures and a check that starts failing from zero can alert.
+      - record: face:check_evaluated:rate1h
+        expr: sum by (job, check) (rate(face_check_status_total{job="veriface", status=~"pass|fail|undetermined"}[1h]))
+      - record: face:check_reject:ratio_rate1h
+        expr: |
+          (
+            sum by (job, check) (rate(face_check_status_total{job="veriface", status="fail"}[1h]))
+            or face:check_evaluated:rate1h * 0
+          )
+          / clamp_min(face:check_evaluated:rate1h, 1e-9)
+      - record: face:check_undetermined:ratio_rate1h
+        expr: |
+          (
+            sum by (job, check) (rate(face_check_status_total{job="veriface", status="undetermined"}[1h]))
+            or face:check_evaluated:rate1h * 0
+          )
+          / clamp_min(face:check_evaluated:rate1h, 1e-9)
+      # Seven-day baselines, averaged from the hourly series (cheap to evaluate).
+      - record: face:check_reject:ratio_avg7d
+        expr: avg_over_time(face:check_reject:ratio_rate1h[7d])
+      - record: face:check_undetermined:ratio_avg7d
+        expr: avg_over_time(face:check_undetermined:ratio_rate1h[7d])
+
+      - record: face:verification_outcome:share_rate1h
+        expr: |
+          sum by (job, outcome) (rate(face_verification_outcome_total{job="veriface"}[1h]))
+          / ignoring(outcome) group_left
+          clamp_min(sum by (job) (rate(face_verification_outcome_total{job="veriface"}[1h])), 1e-9)
+      - record: face:verification_outcome:share_avg7d
+        expr: avg_over_time(face:verification_outcome:share_rate1h[7d])
+
+  # ---------------------------------------------------------------------------- availability
+  - name: veriface-availability
+    rules:
+      - alert: VerifaceDown
+        expr: up{job="veriface"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Veriface {{ $labels.instance }} cannot be scraped"
+          description: "GET /metrics has failed for 2 minutes: the process is down, hung, or unreachable. Check the Windows service (Get-Service veriface) or the container, and the log file."
+
+      - alert: VerifaceAbsent
+        expr: absent(up{job="veriface"})
+        for: 10m
+        labels: { severity: critical }
+        annotations:
+          summary: "No Veriface scrape target"
+          description: "Prometheus has no target for job=veriface. Service discovery or the scrape config is broken."
+
+      - alert: VerifaceNotReady
+        expr: probe_success{job="veriface-ready"} == 0
+        for: 3m
+        labels: { severity: critical }
+        annotations:
+          summary: "Veriface {{ $labels.instance }} is not ready"
+          description: "/health/ready has not returned 200 for 3 minutes. Image endpoints answer 503 not-ready. Usually a model, ONNX Runtime or profile problem at startup (the service lists every problem in its log), or a stuck shutdown."
+
+      # Without a blackbox probe: 503s while nothing is queued are most likely not-ready, not overload.
+      - alert: Veriface503WithoutLoad
+        expr: |
+          sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*", status="503"}[5m])) > 0
+          and on (job, instance)
+          max_over_time(face_queue_depth{job="veriface"}[5m]) == 0
+          and on (job, instance)
+          max_over_time(face_inflight{job="veriface"}[5m]) == 0
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }} answers 503 with an empty queue"
+          description: "503 responses with no queued or in-flight work usually mean not-ready (models not loaded or shutting down). Check /health/ready and the startup log."
+
+  # ---------------------------------------------------------------------------------- errors
+  - name: veriface-errors
+    rules:
+      # 5xx other than 503 (i.e. 500 internal): engine failures. 503 has its own alert.
+      - alert: VerifaceInternalErrors
+        expr: |
+          sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*", status=~"5..", status!="503"}[5m]))
+          / clamp_min(sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*"}[5m])), 1e-9)
+          > 0.01
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: {{ $value | humanizePercentage }} of requests fail with 5xx"
+          description: "500 internal responses above 1% for 10 minutes. Details are in the JSON log (problem code `internal`, by request id)."
+
+      - alert: VerifaceInternalErrorsHigh
+        expr: |
+          sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*", status=~"5..", status!="503"}[5m]))
+          / clamp_min(sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*"}[5m])), 1e-9)
+          > 0.05
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: {{ $value | humanizePercentage }} of requests fail with 5xx"
+          description: "500 internal responses above 5% for 5 minutes."
+
+      - alert: VerifaceOverloaded
+        expr: |
+          sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*", status="503"}[5m]))
+          / clamp_min(sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*"}[5m])), 1e-9)
+          > 0.05
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: {{ $value | humanizePercentage }} of requests rejected with 503"
+          description: "More than 5% of requests get 503 (overloaded: queue full or request timeout; or not-ready). Add capacity, or check for a client retry storm. Clients still uploading when the 503 is sent get it only if the body is drained: see VerifaceUnreadBodiesDropped and face_unread_body_total."
+
+      - alert: VerifaceOverloadedHigh
+        expr: |
+          sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*", status="503"}[5m]))
+          / clamp_min(sum by (job, instance) (rate(face_requests_total{job="veriface", endpoint=~"/v1/.*"}[5m])), 1e-9)
+          > 0.20
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: {{ $value | humanizePercentage }} of requests rejected with 503"
+          description: "More than 20% of requests get 503 for 5 minutes."
+
+      - alert: VerifaceAuthFailures
+        expr: sum by (job, instance) (rate(face_requests_total{job="veriface", status="401"}[10m])) > 0.2
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: sustained 401 unauthorized"
+          description: "More than 0.2 401/s for 10 minutes: a rotated or mistyped key in an integrating project, or key guessing."
+
+      # Early responses (401, 413, 429, 503...) whose request body could not be drained: the
+      # connection is closed with the body unread, and a client still uploading may get a
+      # connection reset instead of the response (and cannot honour Retry-After).
+      - alert: VerifaceUnreadBodiesDropped
+        expr: sum by (job, instance) (rate(face_unread_body_total{job="veriface", outcome=~"busy|timeout"}[5m])) > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: early responses closed without draining the upload ({{ $value | humanize }}/s)"
+          description: "Bodies of early-rejected requests were not drained (busy: no drain slot; timeout: the drain ran out of time) for 10 minutes. Clients still uploading may see connection resets instead of the 401/429/503. Usually sustained overload or slow clients; check the overload alerts and the queue."
+
+      # P4: per-key limits.
+      - alert: VerifaceRateLimited
+        expr: sum by (job, project, reason) (rate(face_rate_limited_total{job="veriface"}[5m])) > 0.1
+        for: 15m
+        labels: { severity: info }
+        annotations:
+          summary: "Project {{ $labels.project }} is rate limited ({{ $labels.reason }}, {{ $value | humanize }}/s)"
+          description: "The project's API key keeps hitting its {{ $labels.reason }} limit (429 rate-limited). Either the integrating project needs a higher limit or it is not honouring Retry-After."
+
+  # ---------------------------------------------------------------------------------- config
+  - name: veriface-config
+    rules:
+      # P4: hot reload of API keys and profiles. Any failed reload alerts.
+      - alert: VerifaceConfigReloadFailed
+        expr: sum by (job, instance) (increase(face_config_reloads_total{job="veriface", result="error"}[10m])) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: configuration reload failed"
+          description: "A hot reload of the API keys or profiles was refused in the last 10 minutes. The service log lists every problem it found."
+
+  # ----------------------------------------------------------------------------- latency SLO
+  - name: veriface-latency
+    rules:
+      # SLO: 99% of /v1 requests within 5 s -> 1% budget. Multi-window, multi-burn-rate (Google SRE workbook).
+      - alert: VerifaceLatencyBudgetBurnFast
+        expr: |
+          face:latency_slo_miss:ratio_rate1h > (14.4 * 0.01)
+          and face:latency_slo_miss:ratio_rate5m > (14.4 * 0.01)
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: "Veriface latency SLO burning fast ({{ $value | humanizePercentage }} of requests over 5 s)"
+          description: "At this rate the 30-day budget (1% of requests over 5 s) is gone in about 2 days. Check queue depth, the queue and embed stage p95, and CPU contention on the host."
+
+      - alert: VerifaceLatencyBudgetBurnSlow
+        expr: |
+          face:latency_slo_miss:ratio_rate6h > (6 * 0.01)
+          and face:latency_slo_miss:ratio_rate30m > (6 * 0.01)
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface latency SLO burning ({{ $value | humanizePercentage }} of requests over 5 s)"
+          description: "At this rate the 30-day budget is gone in about 5 days."
+
+      - alert: VerifaceRequestTimeouts
+        expr: |
+          sum by (job, instance) (rate(face_request_duration_seconds_count{job="veriface", endpoint=~"/v1/.*"}[10m]))
+          - sum by (job, instance) (rate(face_request_duration_seconds_bucket{job="veriface", endpoint=~"/v1/.*", le="30"}[10m]))
+          > 0
+        for: 10m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }}: requests take longer than 30 s"
+          description: "Requests land above the largest latency bucket (30 s): they run into server.request_timeout_ms or a slow client upload."
+
+  # -------------------------------------------------------------------------------- capacity
+  - name: veriface-capacity
+    rules:
+      - alert: VerifaceQueueSaturated
+        # 26 = 80% of the default queue_limit (32). Adjust when queue_limit changes.
+        expr: avg_over_time(face_queue_depth{job="veriface"}[5m]) >= 26
+        for: 5m
+        labels: { severity: warning }
+        annotations:
+          summary: "Veriface {{ $labels.instance }} queue is near its limit ({{ $value | humanize }} waiting)"
+          description: "The wait queue has averaged >= 80% of queue_limit for 5 minutes; new requests will soon get 503 overloaded. Add instances or cores, or lower the request rate."
+
+      - alert: VerifaceQueueing
+        expr: avg_over_time(face_queue_depth{job="veriface"}[15m]) >= 1
+        for: 15m
+        labels: { severity: info }
+        annotations:
+          summary: "Veriface {{ $labels.instance }} has been queueing for 15 minutes"
+          description: "Every processing slot has been busy for 15 minutes. Capacity planning signal, not an outage."
+
+  # ----------------------------------------------------------------------------------- drift
+  - name: veriface-drift
+    rules:
+      # A check whose reject rate jumps compared with its 7-day average: capture conditions,
+      # a client app release, a profile change, or a model change. Needs >= 7 days of history to be
+      # meaningful, and a minimum volume (0.01/s = 36 evaluations per hour) to avoid noise.
+      - alert: VerifaceCheckRejectRateRising
+        expr: |
+          face:check_reject:ratio_rate1h > 2 * face:check_reject:ratio_avg7d
+          and (face:check_reject:ratio_rate1h - face:check_reject:ratio_avg7d) > 0.10
+          and face:check_evaluated:rate1h > 0.01
+        for: 30m
+        labels: { severity: warning }
+        annotations:
+          summary: "Check {{ $labels.check }} reject rate is {{ $value | humanizePercentage }}, over twice its 7-day average"
+          description: "Sudden rise in failures of {{ $labels.check }}. Compare with recent client releases, profile or model changes, and the capture environment."
+
+      - alert: VerifaceCheckRejectRateCollapsed
+        expr: |
+          face:check_reject:ratio_avg7d > 0.05
+          and face:check_reject:ratio_rate1h < face:check_reject:ratio_avg7d / 3
+          and face:check_evaluated:rate1h > 0.01
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: "Check {{ $labels.check }} almost stopped rejecting ({{ $value | humanizePercentage }})"
+          description: "A check that usually rejects more than 5% now rejects under a third of that. A check that silently passes everything is a drift or regression signal (profile threshold change, model change)."
+
+      - alert: VerifaceCheckUndeterminedRising
+        expr: |
+          face:check_undetermined:ratio_rate1h > 2 * face:check_undetermined:ratio_avg7d
+          and (face:check_undetermined:ratio_rate1h - face:check_undetermined:ratio_avg7d) > 0.10
+          and face:check_evaluated:rate1h > 0.01
+        for: 30m
+        labels: { severity: warning }
+        annotations:
+          summary: "Check {{ $labels.check }} undetermined rate is {{ $value | humanizePercentage }}"
+          description: "More results the service could not measure (often: no face found, so dependent checks are undetermined)."
+
+      - alert: VerifaceVerificationOutcomeShift
+        expr: |
+          abs(face:verification_outcome:share_rate1h - face:verification_outcome:share_avg7d) > 0.15
+          and on (job) sum by (job) (rate(face_verification_outcome_total{job="veriface"}[1h])) > 0.01
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: "Verification outcome {{ $labels.outcome }} share moved by more than 15 points from its 7-day average"
+          description: "The share moved {{ $value | humanizePercentage }} from its 7-day average. A rising rejected/review share can mean an attack, a capture problem, or a calibration change; a rising retake share points at capture quality."

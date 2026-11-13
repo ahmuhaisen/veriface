@@ -1,0 +1,22 @@
+[package]
+name = "face-quality"
+description = "Selfie and portrait measurements: pose fit, geometry, illumination, sharpness, segmentation-based checks, output crop."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+face-core.workspace = true
+face-imaging.workspace = true
+face-models.workspace = true
+image.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+face-models = { workspace = true, features = ["test-support"] }
+
+[lints]
+workspace = true

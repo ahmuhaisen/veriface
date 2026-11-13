@@ -1,0 +1,16 @@
+{
+  // Code that runs in Node: unit tests (which also import the browser source) and tool configs.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "resolveJsonModule": true
+  },
+  "include": [
+    "src/env.d.ts",
+    "test",
+    "vite.config.ts",
+    "vite.worker.config.ts",
+    "vitest.config.ts",
+    "examples/basic/vite.config.ts"
+  ]
+}

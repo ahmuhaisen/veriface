@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Face Capture Example</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #0f172a;
+        --muted: #475569;
+        --line: #e2e8f0;
+        --panel: #f8fafc;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans Arabic', sans-serif;
+        color: var(--ink);
+        background: #ffffff;
+      }
+      body { margin: 0; padding: 16px; }
+      header { max-width: 1200px; margin: 0 auto 16px; }
+      h1 { font-size: 1.4rem; margin: 0 0 4px; }
+      header p { margin: 0 0 12px; color: var(--muted); }
+      .controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+      fieldset { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; margin: 0; }
+      legend { font-size: 0.8rem; color: var(--muted); padding: 0 4px; }
+      button { font: inherit; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line); background: #fff; cursor: pointer; }
+      main { max-width: 1200px; margin: 0 auto; display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); }
+      @media (min-width: 900px) { main { grid-template-columns: minmax(0, 520px) minmax(0, 1fr); } }
+      .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; min-width: 0; }
+      .panel h2 { font-size: 1rem; margin: 4px 0 8px; }
+      dl { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0 0 8px; }
+      dt { color: var(--muted); }
+      dd { margin: 0; font-family: ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+      progress { width: 100%; }
+      pre { font-size: 0.75rem; max-height: 320px; overflow: auto; background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
+      #result-image { max-width: 100%; border-radius: 8px; display: block; }
+      #burst { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+      #burst img { height: 64px; border-radius: 4px; }
+      .error { color: #b91c1c; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Veriface Capture: basic example</h1>
+      <p>Everything runs in this page. Nothing is uploaded: captured images stay in the browser.</p>
+      <div class="controls">
+        <fieldset>
+          <legend>Mode</legend>
+          <label><input type="radio" name="mode" value="selfie" checked /> Selfie</label>
+          <label><input type="radio" name="mode" value="document" /> Document</label>
+        </fieldset>
+        <fieldset>
+          <legend>Language</legend>
+          <label><input type="radio" name="lang" value="en" checked /> English</label>
+          <label><input type="radio" name="lang" value="ar" /> العربية</label>
+        </fieldset>
+        <button id="start" type="button">Start camera</button>
+        <button id="stop" type="button">Stop</button>
+      </div>
+    </header>
+    <main>
+      <section>
+        <veriface-capture id="capture" mode="selfie" lang="en"></veriface-capture>
+      </section>
+      <div>
+        <section class="panel" aria-labelledby="live-title">
+          <h2 id="live-title">Live guidance</h2>
+          <dl>
+            <dt>Status</dt><dd id="status">idle</dd>
+            <dt>Hint</dt><dd id="code">-</dd>
+            <dt>Frame code</dt><dd id="frame-code">-</dd>
+            <dt>Engine</dt><dd id="engine">-</dd>
+            <dt>Analysis</dt><dd id="analysis">-</dd>
+          </dl>
+          <progress id="progress" max="1" value="0"></progress>
+          <p>Issues (blocking): <span id="issues">-</span></p>
+          <p>Advisories: <span id="advisories">-</span></p>
+          <p class="error" id="error" hidden></p>
+          <details>
+            <summary>Measurements</summary>
+            <pre id="measurements"></pre>
+          </details>
+        </section>
+        <section class="panel" aria-labelledby="result-title">
+          <h2 id="result-title">Captured image</h2>
+          <p id="result-meta">Nothing captured yet.</p>
+          <img id="result-image" alt="Captured image" hidden />
+          <div id="burst"></div>
+          <details>
+            <summary>Guidance summary</summary>
+            <pre id="summary"></pre>
+          </details>
+          <details>
+            <summary>Signals (diagnostics only, not security)</summary>
+            <pre id="signals"></pre>
+          </details>
+        </section>
+      </div>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

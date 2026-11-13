@@ -1,0 +1,40 @@
+# Veriface: configuration of the Windows service.
+#
+# Written by Install-Veriface.ps1 on the first install, then never overwritten (upgrades keep
+# it). Every key is documented in config.example.toml in the release folder.
+#
+# Paths go through the `current` junction, so an upgrade or rollback only flips the junction:
+#   {{INSTALL_ROOT}}\current  ->  {{INSTALL_ROOT}}\releases\<version>
+#
+# API keys live in keys.toml next to this file (api_keys_file). Add, rotate or remove keys there;
+# restart the service to apply. Generate a key and its hash with:
+#   Install-Veriface.ps1 -Action NewKey -Project <name>
+
+health_requires_key = false
+api_keys_file = 'keys.toml'
+
+[server]
+bind = "{{BIND}}"
+max_concurrency = 0
+queue_limit = 32
+request_timeout_ms = 30000
+
+[paths]
+models = '{{INSTALL_ROOT}}\current\models'
+profiles = '{{INSTALL_ROOT}}\current\profiles'
+ort_library = '{{INSTALL_ROOT}}\current\onnxruntime.dll'
+
+[engine]
+kind = "pipeline"
+intra_op_threads = 1
+sessions_per_model = 0
+parallel_stages = true
+
+[metrics]
+# GET /metrics has no authentication: keep the port on a management network.
+enabled = true
+
+[logging]
+format = "json"
+level = "info"
+file = '{{DATA_ROOT}}\logs\veriface.log'

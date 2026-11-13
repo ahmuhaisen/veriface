@@ -1,0 +1,16 @@
+# Build context = repository root. Allow-list: only what the image build needs.
+# (BuildKit reads <Dockerfile>.dockerignore next to the Dockerfile.)
+*
+!contracts/**
+!profiles/**
+!service/Cargo.toml
+!service/Cargo.lock
+!service/rust-toolchain.toml
+!service/config.example.toml
+!service/crates/**
+!service/third_party/onnxruntime/*/linux-x64/**
+!models/manifest.json
+!models/mp-canonical-face.json
+!models/*.onnx
+!deploy/docker/config.toml
+!deploy/licenses/**

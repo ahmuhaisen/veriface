@@ -1,0 +1,30 @@
+[package]
+name = "face-models"
+description = "ONNX Runtime session management, model manifest verification, and MediaPipe/AuraFace model wrappers."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[features]
+# Helpers for tests that use the real ONNX Runtime, models, test images and goldens
+# (src/test_support.rs). Never enabled in the service build.
+test-support = []
+
+[dependencies]
+face-imaging.workspace = true
+image.workspace = true
+ort.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+
+[dev-dependencies]
+# Enables `test-support` for this crate's own integration tests.
+face-models = { workspace = true, features = ["test-support"] }
+
+[lints]
+workspace = true

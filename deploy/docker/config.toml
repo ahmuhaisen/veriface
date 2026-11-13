@@ -1,0 +1,36 @@
+# Veriface configuration inside the container image (/etc/veriface/config.toml).
+#
+# Change any key without rebuilding: VERIFACE__<TABLE>__<KEY>=value, e.g.
+#   VERIFACE__SERVER__MAX_CONCURRENCY=8   VERIFACE__LOGGING__LEVEL=info,face_server=debug
+# or mount your own file over this one. Every key: config.example.toml in the release bundle.
+#
+# API keys come from a mounted secret (only SHA-256 hashes, see keys.example.toml).
+
+health_requires_key = false
+api_keys_file = "/run/secrets/veriface-keys"
+
+[server]
+bind = "0.0.0.0:8080"
+max_concurrency = 0
+queue_limit = 32
+request_timeout_ms = 30000
+
+[paths]
+# "full" image: baked in; "slim" image: mount the model pack here (read-only).
+models = "/models"
+profiles = "/app/profiles"
+ort_library = "/app/libonnxruntime.so.1.28.2"
+
+[engine]
+kind = "pipeline"
+intra_op_threads = 1
+sessions_per_model = 0
+parallel_stages = true
+
+[metrics]
+enabled = true
+
+[logging]
+# stdout; the container runtime collects and rotates it.
+format = "json"
+level = "info"

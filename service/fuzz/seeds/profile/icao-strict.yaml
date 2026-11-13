@@ -1,0 +1,112 @@
+# Strict profile: validate a finished, ICAO-style portrait as-is (e.g. an uploaded passport-style
+# photo). Geometry ratios and pose limits follow the ICAO Technical Report "Portrait Quality"
+# v1.0. Score-type thresholds are provisional until calibrated.
+name: icao-strict
+version: 0.1.0
+description: ICAO TR Portrait Quality limits for finished portraits; strict document reference.
+catalogueVersion: 1
+
+input:
+  maxBytes: 10485760
+  maxPixels: 40000000
+  formats: [jpeg, png, webp]
+
+faceCounting:
+  minInterEyeDistanceRatio: 0.02
+
+selfie:
+  checks:
+    IMAGE_RESOLUTION:        { enabled: true,  severity: error,   min: 480 }
+    COMPRESSION_QUALITY:     { enabled: true,  severity: error,   min: 60 }
+    FACE_PRESENT:            { enabled: true,  severity: error,   min: 1 }
+    SINGLE_FACE:             { enabled: true,  severity: error,   max: 1 }
+    INTER_EYE_DISTANCE:      { enabled: true,  severity: error,   min: 90 }
+    HEAD_IN_FRAME:           { enabled: true,  severity: error,   min: 0.05 }
+    EYE_MIDPOINT_HORIZONTAL: { enabled: true,  severity: error,   min: 0.45, max: 0.55 }
+    EYE_MIDPOINT_VERTICAL:   { enabled: true,  severity: error,   min: 0.30, max: 0.50 }
+    HEAD_WIDTH_RATIO:        { enabled: true,  severity: error,   min: 0.50, max: 0.75 }
+    HEAD_HEIGHT_RATIO:       { enabled: true,  severity: error,   min: 0.60, max: 0.90 }
+    HEAD_POSE_YAW:           { enabled: true,  severity: error,   min: -5, max: 5 }
+    HEAD_POSE_PITCH:         { enabled: true,  severity: error,   min: -5, max: 5 }
+    HEAD_POSE_ROLL:          { enabled: true,  severity: error,   min: -8, max: 8 }
+    EYES_VISIBLE:            { enabled: true,  severity: error,   min: 0.95 }
+    EYES_OPEN:               { enabled: true,  severity: error,   min: 0.5 }    # provisional
+    GAZE_FRONTAL:            { enabled: true,  severity: warning, max: 10 }     # experimental
+    MOUTH_CLOSED:            { enabled: true,  severity: error,   max: 0.2 }    # provisional
+    EXPRESSION_NEUTRAL:      { enabled: true,  severity: error,   max: 0.3 }    # provisional
+    FACE_OCCLUSION:          { enabled: true,  severity: error,   max: 0.10 }   # glasses frames read about 0.07
+    HEAD_COVERING:           { enabled: false }                   # ICAO allows religious coverings; policy per project
+    EYEGLASSES:              { enabled: true,  severity: warning, max: 0.5 }    # experimental
+    LUMINANCE_MEAN:          { enabled: true,  severity: error,   min: 0.10, max: 0.70 }   # provisional, linear OFIQ luma; fixtures: mean 0.155-0.42, dark share up to 0.41
+    UNDER_EXPOSURE:          { enabled: true,  severity: error,   max: 0.55 }   # provisional; check demographic differentials
+    OVER_EXPOSURE:           { enabled: true,  severity: error,   max: 0.05 }
+    DYNAMIC_RANGE:           { enabled: true,  severity: error,   min: 6.0 }
+    ILLUMINATION_UNIFORMITY: { enabled: true,  severity: error,   min: 0.50 }   # ICAO: each zone >= 50% of the brightest
+    SHARPNESS:               { enabled: true,  severity: error,   min: 0.40 }   # provisional
+    BACKGROUND_UNIFORMITY:   { enabled: true,  severity: error,   min: 0.60 }   # provisional
+  output:
+    enabled: true
+    style: portrait-3x4
+    width: 480
+    height: 640
+    format: jpeg
+    maxBytes: 102400
+    minJpegQuality: 70
+    background: keep
+
+document:
+  checks:
+    IMAGE_RESOLUTION:        { enabled: true,  severity: error,   min: 1000 }
+    COMPRESSION_QUALITY:     { enabled: true,  severity: warning, min: 60 }
+    DOCUMENT_DETECTED:       { enabled: true,  severity: warning, min: 0.5 }
+    PORTRAIT_FOUND:          { enabled: true,  severity: error,   min: 1 }
+    INTER_EYE_DISTANCE:      { enabled: true,  severity: error,   min: 90 }    # ICAO TR
+    EYES_VISIBLE:            { enabled: true,  severity: error,   min: 0.9 }
+    FACE_OCCLUSION:          { enabled: true,  severity: warning, max: 0.15 }
+    LUMINANCE_MEAN:          { enabled: true,  severity: warning, min: 0.06, max: 0.85 }   # provisional, linear OFIQ luma
+    UNDER_EXPOSURE:          { enabled: true,  severity: warning, max: 0.70 }   # provisional, linear OFIQ luma
+    OVER_EXPOSURE:           { enabled: true,  severity: error,   max: 0.10 }
+    SHARPNESS:               { enabled: true,  severity: error,   min: 0.35 }  # provisional
+  output:
+    enabled: true
+    style: face-crop
+    width: 360
+    height: 480
+    format: jpeg
+    maxBytes: 102400
+    minJpegQuality: 70
+    background: keep
+
+verification:
+  model: auraface-v1
+  requiredProbeChecks:
+    - FACE_PRESENT
+    - SINGLE_FACE
+    - INTER_EYE_DISTANCE
+    - HEAD_POSE_YAW
+    - HEAD_POSE_PITCH
+    - HEAD_POSE_ROLL
+    - EYES_VISIBLE
+    - EYES_OPEN
+    - FACE_OCCLUSION
+    - OVER_EXPOSURE
+    - UNDER_EXPOSURE
+    - SHARPNESS
+  requiredReferenceChecks:
+    - PORTRAIT_FOUND
+    - INTER_EYE_DISTANCE
+    - EYES_VISIBLE
+    - OVER_EXPOSURE
+    - SHARPNESS
+  operatingPoints:
+    - { id: fmr-1e-4, targetFmr: 0.0001, threshold: 0.45 }   # provisional
+  defaultOperatingPoint: fmr-1e-4
+  calibration:
+    id: provisional-2026-10-01
+    status: provisional
+    notes: Placeholder thresholds; replace with lab calibration.
+  risk:
+    checks:
+      PROBE_REFERENCE_DUPLICATE: { enabled: true, severity: error,   max: 0.5 }
+      PROBE_DOCUMENT_PRESENT:    { enabled: true, severity: error,   max: 0.5 }
+      PROBE_SCREEN_ARTIFACTS:    { enabled: true, severity: warning, max: 0.5 }

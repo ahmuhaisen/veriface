@@ -1,0 +1,17 @@
+# Override for the "slim" image: the model pack comes from a host directory (or a named volume
+# filled from the release bundle's models/ folder), mounted read-only.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.slim.yml up -d
+#
+# VERIFACE_MODELS: directory holding manifest.json and the files it lists (default ./models).
+# The service checks every file's SHA-256 against manifest.json at startup and refuses to start
+# on a mismatch, so a wrong or partial pack never serves.
+
+services:
+  veriface:
+    image: veriface:${VERIFACE_VERSION:-0.1.0}-slim
+    volumes:
+      - type: bind
+        source: ${VERIFACE_MODELS:-./models}
+        target: /models
+        read_only: true

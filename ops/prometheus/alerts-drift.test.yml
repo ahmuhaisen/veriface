@@ -1,0 +1,32 @@
+# Unit test for the drift rules in alerts.yml:  promtool test rules ops/prometheus/alerts-drift.test.yml
+# Separate file: the 7-day baselines need a coarser evaluation interval to stay within promtool's
+# sample limit (4m: under the 5-minute lookback, so recorded series never go stale between steps).
+rule_files: [alerts.yml]
+evaluation_interval: 4m
+
+tests:
+  # Drift: SHARPNESS rejects 5% for 7 days, then 40% -> VerifaceCheckRejectRateRising.
+  # A check that never failed (EYES_OPEN) and starts failing 30% must alert too.
+  # 8 days at 10-minute steps: 1152 samples per series.
+  - interval: 10m
+    input_series:
+      - series: 'face_check_status_total{job="veriface", check="SHARPNESS", status="pass"}'
+        values: '0+57x1008 57456+36x143'
+      - series: 'face_check_status_total{job="veriface", check="SHARPNESS", status="fail"}'
+        values: '0+3x1008 3024+24x143'
+      - series: 'face_check_status_total{job="veriface", check="EYES_OPEN", status="pass"}'
+        values: '0+60x1008 60480+42x143'
+      - series: 'face_check_status_total{job="veriface", check="EYES_OPEN", status="fail"}'
+        values: '0x1008 0+18x143'
+    alert_rule_test:
+      - eval_time: 7d12h
+        alertname: VerifaceCheckRejectRateRising
+        exp_alerts:
+          - exp_labels: { severity: warning, job: veriface, check: SHARPNESS }
+            exp_annotations:
+              summary: "Check SHARPNESS reject rate is 40%, over twice its 7-day average"
+              description: "Sudden rise in failures of SHARPNESS. Compare with recent client releases, profile or model changes, and the capture environment."
+          - exp_labels: { severity: warning, job: veriface, check: EYES_OPEN }
+            exp_annotations:
+              summary: "Check EYES_OPEN reject rate is 30%, over twice its 7-day average"
+              description: "Sudden rise in failures of EYES_OPEN. Compare with recent client releases, profile or model changes, and the capture environment."

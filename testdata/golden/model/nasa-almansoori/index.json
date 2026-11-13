@@ -1,0 +1,250 @@
+{
+ "image": "nasa-almansoori",
+ "tolerances": {
+  "default": {
+   "atol": 0.0001,
+   "rtol": 1e-05
+  },
+  "landmarks": {
+   "atol": 0.001,
+   "rtol": 1e-05
+  }
+ },
+ "models": {
+  "mp-face-detector-short": {
+   "input": "mp-face-detector-short.input.png",
+   "roi": {
+    "cx": 409.5,
+    "cy": 512.0,
+    "w": 1024.0,
+    "h": 1024.0,
+    "rotation": 0.0
+   },
+   "keepAspectRatio": true,
+   "padding": [
+    0.10009765625,
+    0.0,
+    0.10009765625,
+    0.0
+   ],
+   "border": "zero",
+   "warpMatrix": [
+    [
+     0.125,
+     0.0,
+     12.8125
+    ],
+    [
+     0.0,
+     0.125,
+     0.0
+    ],
+    [
+     -0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "outputs": {
+    "regressors": "mp-face-detector-short.regressors.npy",
+    "classificators": "mp-face-detector-short.classificators.npy"
+   },
+   "decoded": [
+    {
+     "box": [
+      291.483,
+      180.564,
+      248.475,
+      248.475
+     ],
+     "score": 0.959923,
+     "keypoints": [
+      [
+       359.27,
+       256.262
+      ],
+      [
+       462.149,
+       256.041
+      ],
+      [
+       406.878,
+       320.996
+      ],
+      [
+       409.363,
+       363.931
+      ],
+      [
+       307.905,
+       267.42
+      ],
+      [
+       526.871,
+       266.989
+      ]
+     ]
+    }
+   ]
+  },
+  "mp-face-detector-full": {
+   "input": "mp-face-detector-full.input.png",
+   "roi": {
+    "cx": 409.5,
+    "cy": 512.0,
+    "w": 1024.0,
+    "h": 1024.0,
+    "rotation": 0.0
+   },
+   "keepAspectRatio": true,
+   "padding": [
+    0.10009765625,
+    0.0,
+    0.10009765625,
+    0.0
+   ],
+   "border": "zero",
+   "warpMatrix": [
+    [
+     0.1875,
+     0.0,
+     19.21875
+    ],
+    [
+     0.0,
+     0.1875,
+     0.0
+    ],
+    [
+     -0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "outputs": {
+    "regressors": "mp-face-detector-full.regressors.npy",
+    "classificators": "mp-face-detector-full.classificators.npy"
+   },
+   "decoded": [
+    {
+     "box": [
+      288.022,
+      178.126,
+      241.759,
+      241.75
+     ],
+     "score": 0.970218,
+     "keypoints": [
+      [
+       363.824,
+       257.612
+      ],
+      [
+       456.142,
+       263.936
+      ],
+      [
+       405.709,
+       319.588
+      ],
+      [
+       404.5,
+       358.569
+      ],
+      [
+       318.072,
+       271.552
+      ],
+      [
+       509.67,
+       284.466
+      ]
+     ]
+    }
+   ]
+  },
+  "mp-face-landmarker": {
+   "input": "mp-face-landmarker.input.png",
+   "roiFromDetector": "short",
+   "roi": {
+    "cx": 415.72060434001014,
+    "cy": 304.80159575665687,
+    "w": 372.71223908974105,
+    "h": 372.7123207750262,
+    "rotation": -0.0021436295570680386
+   },
+   "keepAspectRatio": false,
+   "border": "replicate",
+   "warpMatrix": [
+    [
+     0.68685544,
+     -0.00147235,
+     -157.0911758
+    ],
+    [
+     0.00147238,
+     0.68685525,
+     -81.96667843
+    ],
+    [
+     0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "outputs": {
+    "landmarks": "mp-face-landmarker.landmarks.npy",
+    "presence_logit": "mp-face-landmarker.presence_logit.npy",
+    "tongue_out": "mp-face-landmarker.tongue_out.npy"
+   },
+   "presence": 1.0
+  },
+  "mp-face-blendshapes": {
+   "input": "mp-face-blendshapes.points.npy",
+   "inputNote": "146-landmark subset (x, y) in full-image px, from the mp-face-landmarker golden above",
+   "outputs": {
+    "blendshapes": "mp-face-blendshapes.blendshapes.npy"
+   }
+  },
+  "mp-selfie-multiclass": {
+   "input": "mp-selfie-multiclass.input.png",
+   "roi": {
+    "cx": 409.0,
+    "cy": 299.0,
+    "w": 556.0,
+    "h": 556.0,
+    "rotation": 0.0
+   },
+   "keepAspectRatio": false,
+   "border": "replicate",
+   "warpMatrix": [
+    [
+     0.46043165,
+     0.0,
+     -60.31654676
+    ],
+    [
+     0.0,
+     0.46043165,
+     -9.66906475
+    ],
+    [
+     -0.0,
+     -0.0,
+     1.0
+    ]
+   ],
+   "outputs": {
+    "logits": "mp-selfie-multiclass.logits.f16.npy"
+   },
+   "outputNote": "stored as float16; compare with atol 2e-2 (float16 rounding of logits up to ~20)"
+  },
+  "auraface-v1": {
+   "input": "auraface-v1.input.png",
+   "inputNote": "aligned 112x112 crop of the primary face (pipeline golden 'alignment')",
+   "outputs": {
+    "embedding": "auraface-v1.embedding.npy"
+   }
+  }
+ }
+}

@@ -1,0 +1,12 @@
+{
+  // Emits the public type declarations only. JavaScript is built by Vite.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": false,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "rootDir": "src",
+    "outDir": "dist/types"
+  },
+  "include": ["src"]
+}

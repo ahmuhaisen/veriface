@@ -1,0 +1,26 @@
+[package]
+name = "face-verify"
+description = "AuraFace embedding with 5-point alignment, similarity, risk checks and verification assembly."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+face-core.workspace = true
+face-imaging.workspace = true
+face-models.workspace = true
+face-quality.workspace = true
+face-document.workspace = true
+image.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+face-document = { workspace = true, features = ["test-support"] }
+# Real-model tests (ONNX Runtime, models, lab goldens); they skip when those are absent.
+face-models = { workspace = true, features = ["test-support"] }
+serde_json.workspace = true
+
+[lints]
+workspace = true

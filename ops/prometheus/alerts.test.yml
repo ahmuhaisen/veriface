@@ -1,0 +1,132 @@
+# Unit tests for alerts.yml:  promtool test rules ops/prometheus/alerts.test.yml
+# (drift rules: alerts-drift.test.yml)
+rule_files: [alerts.yml]
+evaluation_interval: 1m
+
+tests:
+  # Scrape failure -> VerifaceDown after 2 minutes.
+  - interval: 1m
+    input_series:
+      - series: 'up{job="veriface", instance="a:8080"}'
+        values: '1 1 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: VerifaceDown
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: VerifaceDown
+        exp_alerts:
+          - exp_labels: { severity: critical, job: veriface, instance: "a:8080" }
+            exp_annotations:
+              summary: "Veriface a:8080 cannot be scraped"
+              description: "GET /metrics has failed for 2 minutes: the process is down, hung, or unreachable. Check the Windows service (Get-Service veriface) or the container, and the log file."
+
+  # 25% of requests get 503 -> warning after 10m and critical after 5m.
+  - interval: 1m
+    input_series:
+      - series: 'face_requests_total{job="veriface", instance="a:8080", endpoint="/v1/quality", status="200"}'
+        values: '0+180x30'
+      - series: 'face_requests_total{job="veriface", instance="a:8080", endpoint="/v1/quality", status="503"}'
+        values: '0+60x30'
+      - series: 'face_queue_depth{job="veriface", instance="a:8080"}'
+        values: '32x30'
+      - series: 'face_inflight{job="veriface", instance="a:8080"}'
+        values: '16x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: VerifaceOverloadedHigh
+        exp_alerts:
+          - exp_labels: { severity: critical, job: veriface, instance: "a:8080" }
+            exp_annotations:
+              summary: "Veriface a:8080: 25% of requests rejected with 503"
+              description: "More than 20% of requests get 503 for 5 minutes."
+      - eval_time: 20m
+        alertname: VerifaceQueueSaturated
+        exp_alerts:
+          - exp_labels: { severity: warning, job: veriface, instance: "a:8080" }
+            exp_annotations:
+              summary: "Veriface a:8080 queue is near its limit (32 waiting)"
+              description: "The wait queue has averaged >= 80% of queue_limit for 5 minutes; new requests will soon get 503 overloaded. Add instances or cores, or lower the request rate."
+      # The queue is full, so the not-ready heuristic must stay quiet.
+      - eval_time: 20m
+        alertname: Veriface503WithoutLoad
+        exp_alerts: []
+
+  # 503s with an empty queue and nothing in flight -> probably not-ready.
+  - interval: 1m
+    input_series:
+      - series: 'face_requests_total{job="veriface", instance="a:8080", endpoint="/v1/quality", status="503"}'
+        values: '0+10x20'
+      - series: 'face_queue_depth{job="veriface", instance="a:8080"}'
+        values: '0x20'
+      - series: 'face_inflight{job="veriface", instance="a:8080"}'
+        values: '0x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: Veriface503WithoutLoad
+        exp_alerts:
+          - exp_labels: { severity: warning, job: veriface, instance: "a:8080" }
+            exp_annotations:
+              summary: "Veriface a:8080 answers 503 with an empty queue"
+              description: "503 responses with no queued or in-flight work usually mean not-ready (models not loaded or shutting down). Check /health/ready and the startup log."
+
+  # Latency SLO: half of the requests above 5 s -> fast burn.
+  - interval: 1m
+    input_series:
+      - series: 'face_request_duration_seconds_bucket{job="veriface", instance="a:8080", endpoint="/v1/verifications", le="5"}'
+        values: '0+60x90'
+      - series: 'face_request_duration_seconds_bucket{job="veriface", instance="a:8080", endpoint="/v1/verifications", le="30"}'
+        values: '0+120x90'
+      - series: 'face_request_duration_seconds_bucket{job="veriface", instance="a:8080", endpoint="/v1/verifications", le="+Inf"}'
+        values: '0+120x90'
+      - series: 'face_request_duration_seconds_count{job="veriface", instance="a:8080", endpoint="/v1/verifications"}'
+        values: '0+120x90'
+    alert_rule_test:
+      - eval_time: 80m
+        alertname: VerifaceLatencyBudgetBurnFast
+        exp_alerts:
+          - exp_labels: { severity: critical, job: veriface }
+            exp_annotations:
+              summary: "Veriface latency SLO burning fast (50% of requests over 5 s)"
+              description: "At this rate the 30-day budget (1% of requests over 5 s) is gone in about 2 days. Check queue depth, the queue and embed stage p95, and CPU contention on the host."
+      - eval_time: 80m
+        alertname: VerifaceRequestTimeouts
+        exp_alerts: []
+
+  # Undrained early rejects (busy) for 10 minutes; drained ones alone never alert.
+  - interval: 1m
+    input_series:
+      - series: 'face_unread_body_total{job="veriface", instance="a:8080", outcome="drained"}'
+        values: '0+100x20'
+      - series: 'face_unread_body_total{job="veriface", instance="a:8080", outcome="busy"}'
+        values: '0x5 0+6x15'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: VerifaceUnreadBodiesDropped
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: VerifaceUnreadBodiesDropped
+        exp_alerts:
+          - exp_labels: { severity: warning, job: veriface, instance: "a:8080" }
+            exp_annotations:
+              summary: "Veriface a:8080: early responses closed without draining the upload (100m/s)"
+              description: "Bodies of early-rejected requests were not drained (busy: no drain slot; timeout: the drain ran out of time) for 10 minutes. Clients still uploading may see connection resets instead of the 401/429/503. Usually sustained overload or slow clients; check the overload alerts and the queue."
+
+  # One failed reload -> immediate alert; successful reloads never alert.
+  - interval: 1m
+    input_series:
+      - series: 'face_config_reloads_total{job="veriface", instance="a:8080", result="ok"}'
+        values: '0 1 2 3 4 5 6 7 8 9 10'
+      - series: 'face_config_reloads_total{job="veriface", instance="a:8080", result="error"}'
+        values: '0 0 0 0 0 1 1 1 1 1 1'
+    alert_rule_test:
+      - eval_time: 4m
+        alertname: VerifaceConfigReloadFailed
+        exp_alerts: []
+      - eval_time: 6m
+        alertname: VerifaceConfigReloadFailed
+        exp_alerts:
+          - exp_labels: { severity: warning, job: veriface, instance: "a:8080" }
+            exp_annotations:
+              summary: "Veriface a:8080: configuration reload failed"
+              description: "A hot reload of the API keys or profiles was refused in the last 10 minutes. The service log lists every problem it found."

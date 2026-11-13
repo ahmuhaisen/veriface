@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+
+# Self-hosted runtime assets for the example page (copied or downloaded, never committed)
+examples/basic/public/face-capture/
+*.task
+*.tflite
+*.wasm

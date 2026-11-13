@@ -1,0 +1,33 @@
+# Veriface configuration on Linux (/etc/veriface/config.toml).
+#
+# Written by install.sh on the first install, never overwritten. Paths go through the
+# /opt/veriface/current symlink, so an upgrade or rollback only moves the link.
+# Every key: config.example.toml in the release folder. Logs go to stdout -> the journal.
+
+health_requires_key = false
+api_keys_file = "/etc/veriface/keys.toml"
+
+[server]
+bind = "{{BIND}}"
+max_concurrency = 0
+queue_limit = 32
+request_timeout_ms = 30000
+
+[paths]
+models = "/opt/veriface/current/models"
+profiles = "/opt/veriface/current/profiles"
+ort_library = "/opt/veriface/current/libonnxruntime.so.1.28.2"
+
+[engine]
+kind = "pipeline"
+intra_op_threads = 1
+sessions_per_model = 0
+parallel_stages = true
+
+[metrics]
+# GET /metrics has no authentication: keep the port on a management network.
+enabled = true
+
+[logging]
+format = "json"
+level = "info"

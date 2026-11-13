@@ -1,0 +1,61 @@
+# Veriface with Docker Compose: the "full" image (models baked in).
+#
+#   cp keys.example.toml keys.toml        # then put your key hash in it
+#   docker load -i veriface-<version>-full.docker.tar.gz   # offline sites
+#   VERIFACE_VERSION=<version> docker compose up -d
+#
+# For the "slim" image with a mounted model pack, add the override:
+#   docker compose -f docker-compose.yml -f docker-compose.slim.yml up -d
+#
+# Sizing: about 1.2 GB for 4 sessions per model plus ~50 MB per concurrent request. Set
+# VERIFACE__SERVER__MAX_CONCURRENCY to the CPU limit so the container is not oversubscribed.
+
+name: veriface
+
+services:
+  veriface:
+    image: veriface:${VERIFACE_VERSION:-0.1.0}-full
+    restart: unless-stopped
+    # Publish on loopback only; put the TLS reverse proxy (or the backend) on this host, or
+    # change to "8080:8080" behind a firewall that admits only the integrating backends.
+    ports:
+      - "127.0.0.1:${VERIFACE_PORT:-8080}:8080"
+    environment:
+      VERIFACE__SERVER__MAX_CONCURRENCY: "${VERIFACE_CPUS:-4}"
+    secrets:
+      - veriface-keys
+    # Hardening: no writes, no privileges, no new privileges.
+    read_only: true
+    user: "65532:65532"
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    pids_limit: 512
+    ulimits:
+      nofile: { soft: 8192, hard: 8192 }
+    deploy:
+      resources:
+        limits:
+          cpus: "${VERIFACE_CPUS:-4}"
+          memory: 4g
+        reservations:
+          memory: 2g
+    # In-flight requests may take up to request_timeout_ms (30 s) to finish after SIGTERM.
+    stop_grace_period: 40s
+    healthcheck:
+      test: ["CMD", "/app/veriface", "healthcheck", "--config", "/etc/veriface/config.toml"]
+      interval: 10s
+      timeout: 5s
+      start_period: 60s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+
+secrets:
+  veriface-keys:
+    file: ./keys.toml

@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ahmuhaisen.github.io/veriface/schemas/model-manifest.schema.json",
+  "title": "Veriface model manifest",
+  "description": "models/manifest.json. Produced by the lab, committed to git, read by the service at startup. The service verifies every file's SHA-256 and refuses to start on mismatch; it refuses models whose review.status is 'rejected' and logs a warning for 'pending'.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["manifestVersion", "generatedAt", "models"],
+  "properties": {
+    "manifestVersion": { "type": "integer", "const": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "generator": { "type": "string", "description": "Tool and version that produced the manifest, e.g. 'facelab 0.1.0'." },
+    "models": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/model" }
+    },
+    "assets": {
+      "type": "array",
+      "description": "Non-model data files the pipeline needs (e.g. canonical face geometry), with the same integrity and licence fields.",
+      "items": { "$ref": "#/$defs/asset" }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "licence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spdx", "url", "trainingData"],
+      "properties": {
+        "spdx": { "type": "string", "description": "SPDX id of the weights/data licence, e.g. Apache-2.0." },
+        "url": { "type": "string", "format": "uri" },
+        "trainingData": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["statement", "commercialUse"],
+          "properties": {
+            "statement": { "type": "string", "description": "What is publicly known about the training data, with source." },
+            "commercialUse": { "enum": ["allowed", "unclear", "prohibited"] },
+            "source": { "type": "string", "format": "uri" }
+          }
+        },
+        "attribution": { "type": "string", "description": "NOTICE text that must ship with the product, if any." }
+      }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": { "enum": ["approved", "pending", "rejected"] },
+        "by": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "notes": { "type": "string" }
+      }
+    },
+    "tensor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "dtype", "shape"],
+      "properties": {
+        "name": { "type": "string" },
+        "dtype": { "enum": ["float32", "float16", "int8", "uint8", "int32", "int64"] },
+        "shape": { "type": "array", "items": { "type": ["integer", "string"] }, "description": "Symbolic dims as strings, e.g. 'N'." },
+        "layout": { "type": "string", "description": "e.g. NHWC, NCHW." },
+        "colorOrder": { "enum": ["RGB", "BGR", "GRAY"] },
+        "valueRange": { "type": "string", "description": "Expected input normalisation, e.g. '[-1,1]', '[0,1]', '(x-127.5)/127.5'." },
+        "description": { "type": "string" }
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "role", "file", "sha256", "bytes", "format", "precision", "upstream", "licence", "review", "io"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+        "role": { "enum": ["face-detector", "face-landmarker", "face-blendshapes", "segmenter", "face-embedder"] },
+        "variant": { "type": "string", "description": "e.g. short-range, full-range." },
+        "file": { "type": "string", "description": "Path relative to models/." },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "format": { "const": "onnx" },
+        "opset": { "type": "integer" },
+        "precision": { "enum": ["fp32", "fp16", "int8"] },
+        "upstream": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "url", "sha256"],
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" },
+            "url": { "type": "string", "format": "uri" },
+            "file": { "type": "string", "description": "Member path when the upstream is an archive (e.g. inside a MediaPipe .task bundle)." },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "conversion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tool", "toolVersion"],
+          "properties": {
+            "tool": { "type": "string" },
+            "toolVersion": { "type": "string" },
+            "command": { "type": "string" },
+            "fidelity": { "type": "string", "description": "Summary of the converted-vs-original output comparison, e.g. 'max abs diff 2.1e-5 on 24 test images'." }
+          }
+        },
+        "licence": { "$ref": "#/$defs/licence" },
+        "review": { "$ref": "#/$defs/review" },
+        "io": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["inputs", "outputs"],
+          "properties": {
+            "inputs": { "type": "array", "items": { "$ref": "#/$defs/tensor" } },
+            "outputs": { "type": "array", "items": { "$ref": "#/$defs/tensor" } }
+          }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "file", "sha256", "bytes", "upstream", "licence"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,63}$" },
+        "file": { "type": "string" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 },
+        "upstream": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["name", "url"],
+          "properties": {
+            "name": { "type": "string" },
+            "version": { "type": "string" },
+            "url": { "type": "string", "format": "uri" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "licence": { "$ref": "#/$defs/licence" },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

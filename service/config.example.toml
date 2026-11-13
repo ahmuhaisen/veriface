@@ -1,0 +1,91 @@
+# Veriface service configuration (example).
+#
+# Copy to config.toml and edit. Relative paths are resolved against the directory of this file,
+# so the layout below matches the packaged dist/ folder:
+#
+#   veriface.exe  config.toml  onnxruntime.dll  profiles/*.yaml  models/manifest.json + models
+#
+# Run:      veriface run --config config.toml
+# Windows:  veriface service install --config config.toml        (elevated prompt)
+#
+# The service refuses to start on any problem in this file, the profiles or the models, and lists
+# every problem it found.
+
+# Also require a valid X-API-Key on /health/live and /health/ready. (/metrics is controlled by
+# [metrics].) Top-level keys must stay above the first [table].
+health_requires_key = false
+
+[server]
+# ip:port to listen on. 0.0.0.0:8080 accepts connections from other hosts. The service speaks
+# plain HTTP: put TLS (a reverse proxy) in front when traffic leaves the machine.
+bind = "127.0.0.1:8080"
+# Requests processed at the same time (CPU-bound work). 0 = number of logical CPUs.
+max_concurrency = 0
+# Requests allowed to wait for a processing slot. Beyond that: 503 overloaded + Retry-After.
+queue_limit = 32
+# Deadline for a whole request (waiting, upload and processing), in milliseconds.
+# A request that misses it gets 503 overloaded + Retry-After.
+request_timeout_ms = 30000
+
+[paths]
+# Directory with manifest.json and the model files it lists (checked by SHA-256 at startup).
+models = "models"
+# Directory of profile files (*.yaml), validated against the check catalogue at startup.
+profiles = "profiles"
+# Microsoft's ONNX Runtime 1.28 library: onnxruntime.dll (Windows) or libonnxruntime.so.1.28.2
+# (Linux), fetched by scripts/fetch-onnxruntime.ps1 (.sh). When omitted, the service looks next to
+# its executable, then in third_party/onnxruntime/1.28.2/<platform>/ next to the executable and
+# next to this file.
+ort_library = "onnxruntime.dll"
+
+# One [[api_keys]] entry per integrating project. Only the SHA-256 (hex) of the key is stored
+# here; the client sends the key itself in the X-API-Key header. README.md shows how to generate
+# a key and its hash. The placeholder below is rejected at startup on purpose.
+[[api_keys]]
+# Name used in logs.
+project = "example-project"
+sha256 = "REPLACE-WITH-THE-SHA256-HEX-OF-THE-KEY"
+# Profiles this key may use. "*" allows every loaded profile.
+profiles = ["standard", "icao-strict"]
+# Used when a request has no ?profile=. Defaults to "standard".
+default_profile = "standard"
+
+[engine]
+# "pipeline" (the vision models; the default) or "stub" (no models: every check is undetermined,
+# verifications end in review; for tests and smoke runs only).
+kind = "pipeline"
+# Threads ONNX Runtime uses inside one inference. Keep 1 when max_concurrency is about the number
+# of cores (parallelism comes from concurrent requests); raise it to cut single-request latency
+# on a lightly loaded machine.
+intra_op_threads = 1
+# ONNX Runtime sessions per model; each runs one inference at a time. 0 = max_concurrency,
+# capped at 4. Every session holds its own copy of the weights (about 290 MB per set, mostly
+# AuraFace): 4 sets use about 1.2 GB. More than 4 did not raise throughput in our measurements.
+sessions_per_model = 0
+# Run a verification's independent stages at the same time: the selfie analysis alongside the
+# document extraction, and the two face embeddings on two sessions (needs sessions_per_model >= 2).
+# Identical results, about 35% lower latency; a verification uses up to two cores meanwhile.
+parallel_stages = true
+# Optional pin of the ONNX Runtime library file (hex SHA-256); startup fails on a mismatch.
+# onnxruntime_sha256 = "1becbd71adbf49609d33195e29c9214969db3c3de69c81425bebe5a4b69aef97"
+
+# Per-model overrides of intra_op_threads (manifest model ids). Default: the two heaviest models
+# at 2 threads, which cut a verification by about a quarter without lowering throughput and
+# without changing any result. Writing this table replaces the default; an empty table turns the
+# overrides off.
+[engine.intra_op_threads_per_model]
+"auraface-v1" = 2
+"mp-selfie-multiclass" = 2
+
+[metrics]
+# GET /metrics in Prometheus text format. It has no authentication: restrict it on the network.
+enabled = true
+
+[logging]
+# "json" (one JSON object per line) or "pretty" (human-readable).
+format = "json"
+# tracing filter directives, e.g. "info" or "info,face_server=debug".
+level = "info"
+# Append to this file instead of writing to stdout. Set it when running as a Windows service
+# (stdout is discarded there); the service account needs write access to the directory.
+# file = "logs/veriface.log"

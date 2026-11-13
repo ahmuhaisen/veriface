@@ -1,0 +1,16 @@
+# Veriface API keys: one [[api_keys]] entry per integrating project. Only the SHA-256 (hex) of
+# each key is stored; the client sends the key itself in X-API-Key.
+#
+# Generate a key and its hash:
+#   key=$(openssl rand -base64 32 | tr '+/' '-_' | tr -d '=')
+#   echo "key:    $key"
+#   echo "sha256: $(printf '%s' "$key" | sha256sum | cut -d' ' -f1)"
+#
+# Copy to keys.toml, replace the placeholder, and keep the file readable by uid 65532
+# (e.g. chmod 0644, or chown root:65532 + chmod 0640).
+
+[[api_keys]]
+project = "example-project"
+sha256 = "REPLACE-WITH-THE-SHA256-HEX-OF-THE-KEY"
+profiles = ["standard", "icao-strict"]
+default_profile = "standard"

@@ -1,0 +1,19 @@
+{
+  "name": "veriface-backend-example",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Minimal Node backend that forwards @veriface/capture captures to the Veriface service. The API key stays on the server.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.0",
+    "typescript": "^6.0.3"
+  }
+}

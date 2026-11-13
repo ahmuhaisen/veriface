@@ -1,0 +1,15 @@
+[package]
+name = "face-imaging"
+description = "Safe image decode with limits, EXIF orientation, JPEG quality estimate, resampling, warps, crops, JPEG encode to a byte budget."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+image.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

@@ -1,0 +1,18 @@
+{
+  "name": "veriface-console",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DEV-ONLY test console for the Veriface service. Never shipped.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "scripts": {
+    "setup": "node scripts/dev-setup.mjs",
+    "dev": "vite",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.4",
+    "typescript": "~5.9.3",
+    "vite": "^7.1.0"
+  }
+}

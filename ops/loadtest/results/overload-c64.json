@@ -1,0 +1,170 @@
+{
+  "label": "overload-c64",
+  "startedAt": "2026-10-02T13:54:39.811Z",
+  "durationS": 64.5,
+  "url": "http://127.0.0.1:18100",
+  "concurrency": 64,
+  "mix": "quality:2,document:1,verify:1",
+  "profile": "fixtures",
+  "output": false,
+  "host": {
+    "platform": "win32",
+    "node": "v26.7.0"
+  },
+  "summary": {
+    "quality": {
+      "requests": 464,
+      "ok": 364,
+      "throughputRps": 7.19,
+      "okRps": 5.64,
+      "latencyMs": {
+        "min": 1,
+        "p50": 3686,
+        "p90": 4364,
+        "p95": 4545,
+        "p99": 4975,
+        "max": 5616,
+        "mean": 2987
+      },
+      "statuses": {
+        "200": 364,
+        "503": 100
+      },
+      "problemCodes": {
+        "overloaded": 100
+      },
+      "results": {
+        "accepted": 326,
+        "rejected": 38
+      },
+      "transportErrors": {
+        "ECONNRESET": 55,
+        "ECONNABORTED": 2936
+      }
+    },
+    "document": {
+      "requests": 210,
+      "ok": 166,
+      "throughputRps": 3.25,
+      "okRps": 2.57,
+      "latencyMs": {
+        "min": 2,
+        "p50": 3921,
+        "p90": 4754,
+        "p95": 5197,
+        "p99": 6223,
+        "max": 6798,
+        "mean": 3250
+      },
+      "statuses": {
+        "200": 166,
+        "503": 44
+      },
+      "problemCodes": {
+        "overloaded": 44
+      },
+      "results": {
+        "rejected": 44,
+        "accepted": 122
+      },
+      "transportErrors": {
+        "ECONNABORTED": 1458,
+        "ECONNRESET": 27
+      }
+    },
+    "verify": {
+      "requests": 189,
+      "ok": 189,
+      "throughputRps": 2.93,
+      "okRps": 2.93,
+      "latencyMs": {
+        "min": 1181,
+        "p50": 4864,
+        "p90": 5749,
+        "p95": 6844,
+        "p99": 7323,
+        "max": 7336,
+        "mean": 4857
+      },
+      "statuses": {
+        "200": 189
+      },
+      "problemCodes": {},
+      "results": {
+        "retake": 43,
+        "rejected": 77,
+        "review": 53,
+        "verified": 16
+      },
+      "transportErrors": {
+        "ECONNABORTED": 1582
+      }
+    },
+    "all": {
+      "requests": 863,
+      "ok": 719,
+      "throughputRps": 13.37,
+      "okRps": 11.14,
+      "latencyMs": {
+        "min": 1,
+        "p50": 3961,
+        "p90": 5048,
+        "p95": 5322,
+        "p99": 6890,
+        "max": 7336,
+        "mean": 3461
+      },
+      "statuses": {
+        "200": 719,
+        "503": 144
+      },
+      "problemCodes": {
+        "overloaded": 144
+      },
+      "results": {
+        "accepted": 448,
+        "rejected": 159,
+        "retake": 43,
+        "review": 53,
+        "verified": 16
+      },
+      "transportErrors": {
+        "ECONNRESET": 82,
+        "ECONNABORTED": 5976
+      }
+    }
+  },
+  "memory": {
+    "pid": 10228,
+    "samples": [
+      {
+        "t": 0,
+        "rss": 1290969088,
+        "private": 1276915712,
+        "threads": 34,
+        "handles": 222
+      },
+      {
+        "t": 31,
+        "rss": 1619734528,
+        "private": 1605775360,
+        "threads": 39,
+        "handles": 282
+      },
+      {
+        "t": 61,
+        "rss": 1598394368,
+        "private": 1594892288,
+        "threads": 38,
+        "handles": 282
+      },
+      {
+        "t": 65,
+        "rss": 1290588160,
+        "private": 1276178432,
+        "threads": 34,
+        "handles": 274
+      }
+    ]
+  }
+}

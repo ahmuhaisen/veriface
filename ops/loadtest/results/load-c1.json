@@ -1,0 +1,157 @@
+{
+  "label": "load-c1",
+  "startedAt": "2026-10-02T13:40:53.043Z",
+  "durationS": 120.2,
+  "url": "http://127.0.0.1:18100",
+  "concurrency": 1,
+  "mix": "quality:2,document:1,verify:1",
+  "profile": "fixtures",
+  "output": false,
+  "host": {
+    "platform": "win32",
+    "node": "v26.7.0"
+  },
+  "summary": {
+    "quality": {
+      "requests": 189,
+      "ok": 189,
+      "throughputRps": 1.57,
+      "okRps": 1.57,
+      "latencyMs": {
+        "min": 138,
+        "p50": 173,
+        "p90": 283,
+        "p95": 295,
+        "p99": 310,
+        "max": 411,
+        "mean": 208
+      },
+      "statuses": {
+        "200": 189
+      },
+      "problemCodes": {},
+      "results": {
+        "accepted": 170,
+        "rejected": 19
+      },
+      "transportErrors": {}
+    },
+    "document": {
+      "requests": 75,
+      "ok": 75,
+      "throughputRps": 0.62,
+      "okRps": 0.62,
+      "latencyMs": {
+        "min": 104,
+        "p50": 268,
+        "p90": 481,
+        "p95": 512,
+        "p99": 851,
+        "max": 851,
+        "mean": 334
+      },
+      "statuses": {
+        "200": 75
+      },
+      "problemCodes": {},
+      "results": {
+        "rejected": 20,
+        "accepted": 55
+      },
+      "transportErrors": {}
+    },
+    "verify": {
+      "requests": 93,
+      "ok": 93,
+      "throughputRps": 0.77,
+      "okRps": 0.77,
+      "latencyMs": {
+        "min": 216,
+        "p50": 471,
+        "p90": 942,
+        "p95": 1045,
+        "p99": 1397,
+        "max": 1397,
+        "mean": 595
+      },
+      "statuses": {
+        "200": 93
+      },
+      "problemCodes": {},
+      "results": {
+        "rejected": 34,
+        "review": 33,
+        "retake": 22,
+        "verified": 4
+      },
+      "transportErrors": {}
+    },
+    "all": {
+      "requests": 357,
+      "ok": 357,
+      "throughputRps": 2.97,
+      "okRps": 2.97,
+      "latencyMs": {
+        "min": 104,
+        "p50": 265,
+        "p90": 615,
+        "p95": 890,
+        "p99": 1199,
+        "max": 1397,
+        "mean": 336
+      },
+      "statuses": {
+        "200": 357
+      },
+      "problemCodes": {},
+      "results": {
+        "accepted": 225,
+        "rejected": 73,
+        "review": 33,
+        "retake": 22,
+        "verified": 4
+      },
+      "transportErrors": {}
+    }
+  },
+  "memory": {
+    "pid": 10228,
+    "samples": [
+      {
+        "t": 0,
+        "rss": 1271336960,
+        "private": 1252954112,
+        "threads": 17,
+        "handles": 178
+      },
+      {
+        "t": 31,
+        "rss": 1271398400,
+        "private": 1253052416,
+        "threads": 18,
+        "handles": 180
+      },
+      {
+        "t": 61,
+        "rss": 1275916288,
+        "private": 1257570304,
+        "threads": 18,
+        "handles": 180
+      },
+      {
+        "t": 91,
+        "rss": 1273413632,
+        "private": 1255075840,
+        "threads": 19,
+        "handles": 180
+      },
+      {
+        "t": 120,
+        "rss": 1273409536,
+        "private": 1255075840,
+        "threads": 19,
+        "handles": 180
+      }
+    ]
+  }
+}

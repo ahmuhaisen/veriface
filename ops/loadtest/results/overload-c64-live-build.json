@@ -1,0 +1,162 @@
+{
+  "label": "overload-c64-live-build",
+  "startedAt": "2026-10-02T14:46:54.827Z",
+  "durationS": 63.4,
+  "url": "http://127.0.0.1:18101",
+  "concurrency": 64,
+  "mix": "quality:2,document:1,verify:1",
+  "profile": "fixtures",
+  "output": false,
+  "host": {
+    "platform": "win32",
+    "node": "v26.7.0"
+  },
+  "summary": {
+    "quality": {
+      "requests": 10565,
+      "ok": 393,
+      "throughputRps": 166.74,
+      "okRps": 6.2,
+      "latencyMs": {
+        "min": 9,
+        "p50": 35,
+        "p90": 68,
+        "p95": 101,
+        "p99": 3818,
+        "max": 5083,
+        "mean": 165
+      },
+      "statuses": {
+        "200": 393,
+        "503": 10172
+      },
+      "problemCodes": {
+        "overloaded": 10172
+      },
+      "results": {
+        "accepted": 342,
+        "rejected": 51
+      },
+      "transportErrors": {}
+    },
+    "document": {
+      "requests": 5244,
+      "ok": 198,
+      "throughputRps": 82.76,
+      "okRps": 3.12,
+      "latencyMs": {
+        "min": 12,
+        "p50": 35,
+        "p90": 69,
+        "p95": 97,
+        "p99": 4368,
+        "max": 7143,
+        "mean": 188
+      },
+      "statuses": {
+        "200": 198,
+        "503": 5046
+      },
+      "problemCodes": {
+        "overloaded": 5046
+      },
+      "results": {
+        "rejected": 56,
+        "accepted": 142
+      },
+      "transportErrors": {}
+    },
+    "verify": {
+      "requests": 5340,
+      "ok": 181,
+      "throughputRps": 84.28,
+      "okRps": 2.86,
+      "latencyMs": {
+        "min": 11,
+        "p50": 59,
+        "p90": 105,
+        "p95": 150,
+        "p99": 5241,
+        "max": 7829,
+        "mean": 221
+      },
+      "statuses": {
+        "200": 181,
+        "503": 5159
+      },
+      "problemCodes": {
+        "overloaded": 5159
+      },
+      "results": {
+        "retake": 35,
+        "review": 67,
+        "rejected": 69,
+        "verified": 10
+      },
+      "transportErrors": {}
+    },
+    "all": {
+      "requests": 21149,
+      "ok": 772,
+      "throughputRps": 333.78,
+      "okRps": 12.18,
+      "latencyMs": {
+        "min": 9,
+        "p50": 40,
+        "p90": 84,
+        "p95": 116,
+        "p99": 4297,
+        "max": 7829,
+        "mean": 185
+      },
+      "statuses": {
+        "200": 772,
+        "503": 20377
+      },
+      "problemCodes": {
+        "overloaded": 20377
+      },
+      "results": {
+        "accepted": 484,
+        "rejected": 176,
+        "retake": 35,
+        "review": 67,
+        "verified": 10
+      },
+      "transportErrors": {}
+    }
+  },
+  "memory": {
+    "pid": 24648,
+    "samples": [
+      {
+        "t": 0,
+        "rss": 1273155584,
+        "private": 1254776832,
+        "threads": 29,
+        "handles": 193
+      },
+      {
+        "t": 31,
+        "rss": 1623392256,
+        "private": 1633349632,
+        "threads": 52,
+        "handles": 309
+      },
+      {
+        "t": 61,
+        "rss": 1652625408,
+        "private": 1640235008,
+        "threads": 47,
+        "handles": 308
+      },
+      {
+        "t": 63,
+        "rss": 1310191616,
+        "private": 1293639680,
+        "threads": 44,
+        "handles": 304
+      }
+    ]
+  }
+}

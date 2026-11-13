@@ -1,0 +1,577 @@
+openapi: 3.1.0
+info:
+  title: Veriface API
+  version: 1.0.0
+  summary: Face quality, document portrait extraction and 1:1 selfie-vs-document verification.
+  description: |
+    Self-hosted and stateless: images, embeddings and templates are never stored or logged.
+
+    **Check IDs, statuses and verdict logic** are defined in `contracts/checks.yaml`; this file
+    defines the HTTP shapes. A quality or verification *result* (including a rejection) is a
+    `200`. Errors use RFC 9457 `application/problem+json`.
+
+    **Images** are sent as `multipart/form-data` parts. Accepted formats are set per profile
+    (JPEG, PNG, WebP). EXIF orientation is applied, then all metadata is discarded.
+
+    **Auth**: every `/v1/*` call needs `X-API-Key`. Keys are configured per project and may be
+    restricted to a set of profiles.
+
+    **Request IDs**: send `X-Request-Id` to correlate logs; otherwise the service generates one.
+    It is echoed in the response header and in `requestId`.
+servers:
+  - url: http://localhost:8080
+security:
+  - apiKey: []
+
+paths:
+  /v1/quality:
+    post:
+      operationId: assessQuality
+      summary: Assess a face photo (selfie subject)
+      parameters:
+        - $ref: '#/components/parameters/Profile'
+        - $ref: '#/components/parameters/IncludeOutput'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [image]
+              properties:
+                image:
+                  type: string
+                  contentMediaType: application/octet-stream
+            encoding:
+              image:
+                contentType: image/jpeg, image/png, image/webp
+      responses:
+        '200':
+          description: Assessment result (accepted, rejected or undetermined).
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/QualityResult' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Overloaded' }
+
+  /v1/document-portraits:
+    post:
+      operationId: extractDocumentPortrait
+      summary: Find and assess the portrait on an identity document
+      description: |
+        Accepts a photo or scan of an ID card or passport data page. Detects and rectifies the
+        document when possible, tries the four 90-degree orientations, selects the largest face,
+        and assesses it as a comparison reference (`portrait` subject). Also accepts an image that
+        is already a tight portrait crop; `DOCUMENT_DETECTED` is then low, which is a warning only.
+      parameters:
+        - $ref: '#/components/parameters/Profile'
+        - $ref: '#/components/parameters/IncludeOutput'
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [document]
+              properties:
+                document:
+                  type: string
+                  contentMediaType: application/octet-stream
+      responses:
+        '200':
+          description: Extraction and assessment result.
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DocumentPortraitResult' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Overloaded' }
+
+  /v1/verifications:
+    post:
+      operationId: verify
+      summary: Compare a selfie (probe) with a document portrait (reference)
+      description: |
+        Runs the selfie assessment on the probe, document-portrait extraction (or a portrait
+        assessment) on the reference, computes the face-embedding similarity, applies the
+        operating point, and evaluates the risk checks. See `verification` in checks.yaml for
+        the `decision` and `outcome` rules.
+      parameters:
+        - $ref: '#/components/parameters/Profile'
+        - name: referenceKind
+          in: query
+          description: >-
+            `document`: the reference is a document image (portrait is extracted).
+            `portrait`: the reference is already a face portrait.
+            `auto`: try document extraction; fall back to portrait.
+          schema: { type: string, enum: [auto, document, portrait], default: auto }
+        - name: operatingPoint
+          in: query
+          description: Operating point id from the profile. Defaults to profile.verification.defaultOperatingPoint.
+          schema: { type: string }
+        - $ref: '#/components/parameters/RequestId'
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [probe, reference]
+              properties:
+                probe:
+                  type: string
+                  contentMediaType: application/octet-stream
+                reference:
+                  type: string
+                  contentMediaType: application/octet-stream
+      responses:
+        '200':
+          description: Verification result.
+          headers:
+            X-Request-Id: { $ref: '#/components/headers/RequestId' }
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/VerificationResult' }
+        '400': { $ref: '#/components/responses/Problem' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+        '413': { $ref: '#/components/responses/Problem' }
+        '415': { $ref: '#/components/responses/Problem' }
+        '422': { $ref: '#/components/responses/Problem' }
+        '503': { $ref: '#/components/responses/Overloaded' }
+
+  /v1/profiles:
+    get:
+      operationId: listProfiles
+      summary: List profiles available to this API key
+      responses:
+        '200':
+          description: Profiles.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [profiles]
+                properties:
+                  profiles:
+                    type: array
+                    items: { $ref: '#/components/schemas/ProfileRef' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/profiles/{name}:
+    get:
+      operationId: getProfile
+      summary: Get a profile's full settings (thresholds), e.g. to align client-side capture guidance
+      parameters:
+        - name: name
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: The profile, as defined by contracts/profile.schema.json, plus its sha256.
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sha256, profile]
+                properties:
+                  sha256: { type: string }
+                  profile:
+                    type: object
+                    description: See contracts/profile.schema.json.
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '403': { $ref: '#/components/responses/Problem' }
+        '404': { $ref: '#/components/responses/Problem' }
+
+  /v1/info:
+    get:
+      operationId: getInfo
+      summary: Service, catalogue and model versions
+      responses:
+        '200':
+          description: Info.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EngineInfo' }
+        '401': { $ref: '#/components/responses/Problem' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /health/live:
+    get:
+      operationId: live
+      summary: Process is up
+      security: []
+      responses:
+        '200': { description: Alive. }
+
+  /health/ready:
+    get:
+      operationId: ready
+      summary: Models loaded, integrity verified, warm-up inference passed
+      security: []
+      responses:
+        '200': { description: Ready. }
+        '503': { $ref: '#/components/responses/Problem' }
+
+  /metrics:
+    get:
+      operationId: metrics
+      summary: Prometheus metrics (request/stage latency histograms, per-check status counters). No biometric data.
+      security: []
+      responses:
+        '200':
+          description: Prometheus text exposition format.
+          content:
+            text/plain: { schema: { type: string } }
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  parameters:
+    Profile:
+      name: profile
+      in: query
+      description: Profile name. Defaults to the API key's default profile, else `standard`.
+      schema: { type: string }
+    IncludeOutput:
+      name: output
+      in: query
+      description: Include the normalised output image. Defaults to the profile's output.enabled.
+      schema: { type: boolean }
+    RequestId:
+      name: X-Request-Id
+      in: header
+      schema: { type: string, maxLength: 128 }
+
+  headers:
+    RequestId:
+      schema: { type: string }
+
+  responses:
+    Problem:
+      description: Error (RFC 9457).
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    RateLimited:
+      description: The API key exceeded its configured request rate or concurrency. Retry after the given delay.
+      headers:
+        Retry-After:
+          schema: { type: integer, minimum: 1 }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+    Overloaded:
+      description: The service is overloaded or not ready. Retry after the given delay.
+      headers:
+        Retry-After:
+          schema: { type: integer }
+      content:
+        application/problem+json:
+          schema: { $ref: '#/components/schemas/Problem' }
+
+  schemas:
+    Problem:
+      type: object
+      description: |
+        RFC 9457. `type` is `https://ahmuhaisen.github.io/veriface/problems/<code>` where code is one of:
+        invalid-request (400), unauthorized (401), profile-forbidden (403), profile-not-found (404),
+        not-found (404, unknown path), method-not-allowed (405), payload-too-large (413),
+        unsupported-media-type (415), rate-limited (429, per-key rate or concurrency limit; Retry-After),
+        image-decode-failed (422), image-too-large (422, pixel or
+        allocation limit), overloaded (503, queue full or request timeout; Retry-After 1 s),
+        not-ready (503, models not loaded; Retry-After 5 s), internal (500).
+
+        Details:
+        - A missing profile (404) is reported before a forbidden one (403).
+        - `invalid-request` covers unknown or duplicate query parameters, an unknown
+          `operatingPoint`, `output=true` with incomplete profile output settings, and malformed
+          multipart bodies.
+        - A non-multipart body is `unsupported-media-type`.
+        - An invalid `X-Request-Id` (over 128 chars, not visible ASCII, or sent twice) is replaced
+          by a generated id; it is not an error.
+        - Nullable response fields are always present (as null), never omitted.
+      required: [type, title, status, code]
+      properties:
+        type: { type: string, format: uri }
+        title: { type: string }
+        status: { type: integer }
+        detail: { type: string }
+        instance: { type: string, description: Request id. }
+        code: { type: string }
+
+    Status:
+      type: string
+      enum: [pass, fail, undetermined, skipped]
+
+    Verdict:
+      type: string
+      enum: [accepted, rejected, undetermined]
+
+    CheckResult:
+      type: object
+      required: [id, group, status, severity, value, unit]
+      properties:
+        id: { type: string, description: Check id from checks.yaml. }
+        group: { type: string }
+        status: { $ref: '#/components/schemas/Status' }
+        severity: { type: string, enum: [error, warning] }
+        value: { type: [number, 'null'] }
+        unit: { type: string }
+        min: { type: [number, 'null'], description: Profile lower bound, if any. }
+        max: { type: [number, 'null'], description: Profile upper bound, if any. }
+        experimental: { type: boolean }
+
+    Box:
+      type: object
+      required: [x, y, width, height]
+      properties:
+        x: { type: number }
+        y: { type: number }
+        width: { type: number }
+        height: { type: number }
+
+    Point:
+      type: array
+      items: { type: number }
+      minItems: 2
+      maxItems: 2
+
+    FaceInfo:
+      type: object
+      description: >-
+        Geometry of the primary face, in INPUT-image coordinates (the uploaded image, after EXIF
+        orientation). For document references this is the uploaded document image, not the portrait crop.
+        Exception: `pose` of a document portrait is measured in the rectified, upright document frame, so
+        it does not depend on how the card was held (a tilted card does not add roll).
+      required: [box, landmarks5, interEyeDistancePx]
+      properties:
+        box: { $ref: '#/components/schemas/Box' }
+        landmarks5:
+          type: array
+          description: 'Order: subject right eye centre, subject left eye centre, nose tip, right mouth corner, left mouth corner (subject''s own left/right).'
+          items: { $ref: '#/components/schemas/Point' }
+          minItems: 5
+          maxItems: 5
+        interEyeDistancePx: { type: number }
+        pose:
+          type: object
+          properties:
+            yaw: { type: number }
+            pitch: { type: number }
+            roll: { type: number }
+
+    OutputImage:
+      type: object
+      required: [mediaType, width, height, bytes, data]
+      properties:
+        mediaType: { type: string, enum: [image/jpeg, image/png] }
+        width: { type: integer }
+        height: { type: integer }
+        bytes: { type: integer }
+        data: { type: string, contentEncoding: base64 }
+
+    ProfileRef:
+      type: object
+      required: [name, version, sha256]
+      properties:
+        name: { type: string }
+        version: { type: string }
+        sha256: { type: string }
+        description: { type: string }
+
+    EngineInfo:
+      type: object
+      required: [version, catalogueVersion, models]
+      properties:
+        version: { type: string }
+        catalogueVersion: { type: integer }
+        models:
+          type: array
+          items:
+            type: object
+            required: [id, role, sha256, reviewStatus]
+            properties:
+              id: { type: string }
+              role: { type: string }
+              sha256: { type: string }
+              reviewStatus: { type: string, enum: [approved, pending, rejected] }
+
+    Timings:
+      type: object
+      description: Milliseconds per stage, plus total.
+      required: [totalMs]
+      properties:
+        totalMs: { type: number }
+      additionalProperties: { type: number }
+
+    SubjectAssessment:
+      type: object
+      required: [verdict, checks, reasons, warnings]
+      properties:
+        verdict: { $ref: '#/components/schemas/Verdict' }
+        checks:
+          type: array
+          items: { $ref: '#/components/schemas/CheckResult' }
+        reasons:
+          type: array
+          description: Failed error-severity check ids, in catalogue priority order.
+          items: { type: string }
+        warnings:
+          type: array
+          description: Failed warning-severity check ids, in catalogue priority order.
+          items: { type: string }
+        face:
+          oneOf:
+            - { $ref: '#/components/schemas/FaceInfo' }
+            - { type: 'null' }
+
+    QualityResult:
+      allOf:
+        - $ref: '#/components/schemas/SubjectAssessment'
+        - type: object
+          required: [requestId, subject, profile, engine, timings]
+          properties:
+            requestId: { type: string }
+            subject: { type: string, const: selfie }
+            profile: { $ref: '#/components/schemas/ProfileRef' }
+            output:
+              oneOf:
+                - { $ref: '#/components/schemas/OutputImage' }
+                - { type: 'null' }
+            engine: { $ref: '#/components/schemas/EngineInfo' }
+            timings: { $ref: '#/components/schemas/Timings' }
+
+    DocumentInfo:
+      type: object
+      required: [detected, confidence, orientationDegrees]
+      properties:
+        detected: { type: boolean }
+        confidence: { type: number }
+        corners:
+          description: >-
+            Document corners in input-image coordinates, in DOCUMENT order: the document's own
+            top-left corner (as read upright) first, then top-right, bottom-right, bottom-left. Null when
+            no outline was detected.
+          type: [array, 'null']
+          items: { $ref: '#/components/schemas/Point' }
+        orientationDegrees:
+          type: integer
+          enum: [0, 90, 180, 270]
+          description: Clockwise rotation (degrees) that makes the document and its portrait upright, relative to the input image.
+
+    DocumentPortraitResult:
+      allOf:
+        - $ref: '#/components/schemas/SubjectAssessment'
+        - type: object
+          required: [requestId, subject, profile, document, engine, timings]
+          properties:
+            requestId: { type: string }
+            subject: { type: string, const: document }
+            profile: { $ref: '#/components/schemas/ProfileRef' }
+            document: { $ref: '#/components/schemas/DocumentInfo' }
+            portraitSourceBox:
+              description: Where the selected portrait sits in the input image (input coordinates, before rotation).
+              oneOf:
+                - { $ref: '#/components/schemas/Box' }
+                - { type: 'null' }
+            output:
+              oneOf:
+                - { $ref: '#/components/schemas/OutputImage' }
+                - { type: 'null' }
+            engine: { $ref: '#/components/schemas/EngineInfo' }
+            timings: { $ref: '#/components/schemas/Timings' }
+
+    Reason:
+      type: object
+      required: [source, code]
+      properties:
+        source: { type: string, enum: [probe, reference, risk, decision] }
+        code:
+          type: string
+          description: A check id, or for source=decision one of SCORE_BELOW_THRESHOLD, NO_SCORE.
+
+    VerificationResult:
+      type: object
+      required: [requestId, outcome, decision, score, threshold, operatingPoint, calibration, probe, reference, risk, reasons, profile, engine, timings]
+      properties:
+        requestId: { type: string }
+        outcome: { type: string, enum: [verified, rejected, review, retake] }
+        decision: { type: string, enum: [match, no_match, undetermined] }
+        score:
+          type: [number, 'null']
+          description: >-
+            Cosine similarity of the embeddings (model-specific). Not a percentage. Null when no
+            embedding was computed: outcome=retake (a required check failed, so the comparison is
+            skipped), or a face is missing.
+        threshold: { type: number }
+        operatingPoint:
+          type: object
+          required: [id, targetFmr]
+          properties:
+            id: { type: string }
+            targetFmr: { type: number }
+        calibration:
+          type: object
+          required: [id, status]
+          properties:
+            id: { type: string }
+            status:
+              type: string
+              enum: [provisional, calibrated]
+              description: provisional = thresholds not yet calibrated on representative data; do not rely on targetFmr.
+        probe: { $ref: '#/components/schemas/SubjectAssessment' }
+        reference:
+          allOf:
+            - $ref: '#/components/schemas/SubjectAssessment'
+            - type: object
+              required: [kind]
+              properties:
+                kind: { type: string, enum: [document, portrait] }
+                document:
+                  oneOf:
+                    - { $ref: '#/components/schemas/DocumentInfo' }
+                    - { type: 'null' }
+        risk:
+          type: object
+          required: [flagged, checks]
+          properties:
+            flagged: { type: boolean, description: True when an error-severity risk check failed. }
+            checks:
+              type: array
+              items: { $ref: '#/components/schemas/CheckResult' }
+        reasons:
+          type: array
+          description: Why the outcome is what it is, most important first.
+          items: { $ref: '#/components/schemas/Reason' }
+        profile: { $ref: '#/components/schemas/ProfileRef' }
+        engine: { $ref: '#/components/schemas/EngineInfo' }
+        timings: { $ref: '#/components/schemas/Timings' }

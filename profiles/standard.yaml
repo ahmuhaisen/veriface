@@ -1,0 +1,124 @@
+# Default profile: remote or assisted selfie capture plus a phone-captured identity document.
+#
+# Numbers marked "provisional" have NOT been calibrated on representative data. The lab replaces
+# them through calibration and records it under verification.calibration. Score-type thresholds
+# (SHARPNESS, EYES_OPEN, MOUTH_CLOSED, EXPRESSION_NEUTRAL, ...) depend on the implementation, so
+# treat all of them as provisional until the first calibration report.
+name: standard
+version: 0.1.0
+description: Balanced thresholds for selfie capture and ID-document reference portraits.
+catalogueVersion: 1
+
+input:
+  maxBytes: 10485760        # 10 MiB
+  maxPixels: 40000000       # 40 MP, checked before full decode
+  formats: [jpeg, png, webp]
+
+faceCounting:
+  minInterEyeDistanceRatio: 0.02   # NIST convention: smaller background faces are ignored
+
+selfie:
+  checks:
+    IMAGE_RESOLUTION:        { enabled: true,  severity: error,   min: 480 }
+    COMPRESSION_QUALITY:     { enabled: true,  severity: warning, min: 50 }
+    FACE_PRESENT:            { enabled: true,  severity: error,   min: 1 }
+    SINGLE_FACE:             { enabled: true,  severity: error,   max: 1 }
+    INTER_EYE_DISTANCE:      { enabled: true,  severity: error,   min: 60 }
+    HEAD_IN_FRAME:           { enabled: true,  severity: error,   min: -0.02 }  # hair touching the edge is fine; we crop
+    EYE_MIDPOINT_HORIZONTAL: { enabled: false }                   # we crop; position in the raw selfie does not matter
+    EYE_MIDPOINT_VERTICAL:   { enabled: false }
+    HEAD_WIDTH_RATIO:        { enabled: false }
+    HEAD_HEIGHT_RATIO:       { enabled: false }
+    HEAD_POSE_YAW:           { enabled: true,  severity: error,   min: -15, max: 15 }
+    HEAD_POSE_PITCH:         { enabled: true,  severity: error,   min: -15, max: 15 }
+    HEAD_POSE_ROLL:          { enabled: true,  severity: error,   min: -10, max: 10 }
+    EYES_VISIBLE:            { enabled: true,  severity: error,   min: 0.9 }
+    EYES_OPEN:               { enabled: true,  severity: error,   min: 0.4 }    # provisional
+    GAZE_FRONTAL:            { enabled: false }
+    MOUTH_CLOSED:            { enabled: true,  severity: warning, max: 0.4 }    # provisional
+    EXPRESSION_NEUTRAL:      { enabled: true,  severity: warning, max: 0.6 }    # provisional
+    FACE_OCCLUSION:          { enabled: true,  severity: error,   max: 0.10 }
+    HEAD_COVERING:           { enabled: false }                   # policy decision per project
+    EYEGLASSES:              { enabled: false }
+    LUMINANCE_MEAN:          { enabled: true,  severity: error,   min: 0.08, max: 0.75 }   # provisional, linear OFIQ luma; fixtures: mean 0.155-0.42, dark share up to 0.41
+    UNDER_EXPOSURE:          { enabled: true,  severity: error,   max: 0.65 }   # provisional; strict values penalise darker skin tones
+    OVER_EXPOSURE:           { enabled: true,  severity: error,   max: 0.10 }
+    DYNAMIC_RANGE:           { enabled: true,  severity: warning, min: 5.0 }
+    ILLUMINATION_UNIFORMITY: { enabled: true,  severity: warning, min: 0.40 }
+    SHARPNESS:               { enabled: true,  severity: error,   min: 0.30 }   # provisional
+    BACKGROUND_UNIFORMITY:   { enabled: false }
+  output:
+    enabled: true
+    style: portrait-3x4
+    width: 480
+    height: 640
+    format: jpeg
+    maxBytes: 102400
+    minJpegQuality: 60
+    background: keep
+
+document:
+  checks:
+    # document subject
+    IMAGE_RESOLUTION:        { enabled: true,  severity: error,   min: 640 }
+    COMPRESSION_QUALITY:     { enabled: true,  severity: warning, min: 50 }
+    DOCUMENT_DETECTED:       { enabled: true,  severity: warning, min: 0.5 }
+    PORTRAIT_FOUND:          { enabled: true,  severity: error,   min: 1 }
+    # portrait subject (the face on the document)
+    INTER_EYE_DISTANCE:      { enabled: true,  severity: error,   min: 60 }    # ICAO best practice is >= 90
+    HEAD_POSE_YAW:           { enabled: false }                   # document portraits are frontal by design
+    HEAD_POSE_PITCH:         { enabled: false }
+    HEAD_POSE_ROLL:          { enabled: false }
+    EYES_VISIBLE:            { enabled: true,  severity: warning, min: 0.8 }   # holograms can overlap the eyes
+    EYES_OPEN:               { enabled: false }
+    MOUTH_CLOSED:            { enabled: false }
+    FACE_OCCLUSION:          { enabled: true,  severity: warning, max: 0.20 }  # security overlays
+    LUMINANCE_MEAN:          { enabled: true,  severity: warning, min: 0.06, max: 0.85 }   # provisional, linear OFIQ luma
+    UNDER_EXPOSURE:          { enabled: true,  severity: warning, max: 0.70 }   # provisional, linear OFIQ luma
+    OVER_EXPOSURE:           { enabled: true,  severity: error,   max: 0.15 }  # glare on the portrait
+    DYNAMIC_RANGE:           { enabled: false }
+    ILLUMINATION_UNIFORMITY: { enabled: false }
+    SHARPNESS:               { enabled: true,  severity: error,   min: 0.25 }  # provisional
+  output:
+    enabled: true
+    style: face-crop
+    width: 360
+    height: 480
+    format: jpeg
+    maxBytes: 102400
+    minJpegQuality: 70
+    background: keep
+
+verification:
+  model: auraface-v1
+  requiredProbeChecks:
+    - FACE_PRESENT
+    - SINGLE_FACE
+    - INTER_EYE_DISTANCE
+    - HEAD_POSE_YAW
+    - HEAD_POSE_PITCH
+    - EYES_VISIBLE
+    - FACE_OCCLUSION
+    - OVER_EXPOSURE
+    - SHARPNESS
+  requiredReferenceChecks:
+    - PORTRAIT_FOUND
+    - INTER_EYE_DISTANCE
+    - OVER_EXPOSURE
+    - SHARPNESS
+  operatingPoints:
+    - { id: fmr-1e-3, targetFmr: 0.001,  threshold: 0.38 }   # provisional
+    - { id: fmr-1e-4, targetFmr: 0.0001, threshold: 0.45 }   # provisional
+  defaultOperatingPoint: fmr-1e-4
+  calibration:
+    id: provisional-2026-10-01
+    status: provisional
+    notes: >-
+      Placeholder thresholds. On the 20-person public-domain fixtures one impostor pair scored 0.386, so
+      0.38 behaves like an FMR 1e-3 point at best and the 1e-4 point was raised to 0.45. Replace with lab
+      calibration on representative selfie-document pairs, including demographically matched impostors.
+  risk:
+    checks:
+      PROBE_REFERENCE_DUPLICATE: { enabled: true, severity: error,   max: 0.5 }  # provisional
+      PROBE_DOCUMENT_PRESENT:    { enabled: true, severity: error,   max: 0.5 }  # provisional
+      PROBE_SCREEN_ARTIFACTS:    { enabled: true, severity: warning, max: 0.5 }  # experimental

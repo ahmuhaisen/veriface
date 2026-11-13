@@ -1,0 +1,134 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ahmuhaisen.github.io/veriface/schemas/profile.schema.json",
+  "title": "Veriface profile",
+  "description": "Thresholds and options for one use case. Profiles are YAML files in profiles/; the service validates them against this schema at startup. Check IDs must exist in contracts/checks.yaml and apply to the section's subject.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "version", "catalogueVersion", "input", "faceCounting", "selfie", "document", "verification"],
+  "properties": {
+    "name": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,62}$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "description": { "type": "string" },
+    "catalogueVersion": { "type": "integer", "const": 1 },
+    "input": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxBytes", "maxPixels", "formats"],
+      "properties": {
+        "maxBytes": { "type": "integer", "minimum": 1024, "maximum": 52428800 },
+        "maxPixels": { "type": "integer", "minimum": 10000, "maximum": 100000000 },
+        "formats": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "enum": ["jpeg", "png", "webp"] }
+        }
+      }
+    },
+    "faceCounting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["minInterEyeDistanceRatio"],
+      "properties": {
+        "minInterEyeDistanceRatio": { "type": "number", "minimum": 0, "maximum": 0.5 }
+      }
+    },
+    "selfie": { "$ref": "#/$defs/subjectSection" },
+    "document": { "$ref": "#/$defs/subjectSection" },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["model", "requiredProbeChecks", "requiredReferenceChecks", "operatingPoints", "defaultOperatingPoint", "calibration", "risk"],
+      "properties": {
+        "model": { "type": "string", "description": "Model id from models/manifest.json with role face-embedder." },
+        "requiredProbeChecks": { "$ref": "#/$defs/checkIdList" },
+        "requiredReferenceChecks": { "$ref": "#/$defs/checkIdList" },
+        "operatingPoints": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "targetFmr", "threshold"],
+            "properties": {
+              "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,31}$" },
+              "targetFmr": { "type": "number", "exclusiveMinimum": 0, "maximum": 0.1 },
+              "threshold": { "type": "number", "minimum": -1, "maximum": 1 }
+            }
+          }
+        },
+        "defaultOperatingPoint": { "type": "string" },
+        "calibration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "status"],
+          "properties": {
+            "id": { "type": "string" },
+            "status": { "enum": ["provisional", "calibrated"] },
+            "dataset": { "type": "string", "description": "Description of the calibration data (never the data itself)." },
+            "date": { "type": "string", "format": "date" },
+            "notes": { "type": "string" }
+          }
+        },
+        "risk": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["checks"],
+          "properties": {
+            "checks": { "$ref": "#/$defs/checkMap" }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "checkId": { "type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,63}$" },
+    "checkIdList": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/checkId" } },
+    "checkSetting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "severity": { "enum": ["error", "warning"], "description": "Defaults to the catalogue's defaultSeverity." },
+        "min": { "type": "number" },
+        "max": { "type": "number" }
+      }
+    },
+    "checkMap": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/checkId" },
+      "additionalProperties": { "$ref": "#/$defs/checkSetting" }
+    },
+    "subjectSection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checks", "output"],
+      "properties": {
+        "checks": {
+          "$ref": "#/$defs/checkMap",
+          "description": "Enabled checks for this subject. Checks not listed are skipped. For the document section, include checks for both the 'document' and 'portrait' subjects."
+        },
+        "output": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["enabled"],
+          "properties": {
+            "enabled": { "type": "boolean" },
+            "style": {
+              "enum": ["portrait-3x4", "face-crop"],
+              "description": "portrait-3x4: ICAO-proportioned head-and-shoulders crop (eye midpoint and head size placed per ICAO TR). face-crop: tight crop around the face with a fixed margin, never upscaled beyond the source."
+            },
+            "width": { "type": "integer", "minimum": 64, "maximum": 4096 },
+            "height": { "type": "integer", "minimum": 64, "maximum": 4096 },
+            "format": { "enum": ["jpeg", "png"] },
+            "maxBytes": { "type": "integer", "minimum": 4096, "description": "JPEG quality is stepped down until the file fits, never below minJpegQuality." },
+            "minJpegQuality": { "type": "integer", "minimum": 30, "maximum": 100 },
+            "background": { "enum": ["keep"], "description": "Background replacement is not supported in v1." }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,25 @@
+[package]
+name = "veriface-fuzz"
+description = "Stable-toolchain mutation fuzzer for the untrusted-input parsers (image decode, JPEG/WebP quality estimate, profile YAML)."
+version = "0.1.0"
+edition = "2024"
+license = "LicenseRef-Proprietary"
+publish = false
+
+# A workspace of its own: this crate is not a member of service/Cargo.toml and does not change it.
+[workspace]
+
+[[bin]]
+name = "veriface-fuzz"
+path = "src/main.rs"
+
+[dependencies]
+face-imaging = { path = "../crates/face-imaging" }
+face-core = { path = "../crates/face-core" }
+
+[profile.release]
+# Keep debug assertions and overflow checks on: an arithmetic overflow is a finding.
+debug-assertions = true
+overflow-checks = true
+debug = "line-tables-only"
+panic = "unwind"

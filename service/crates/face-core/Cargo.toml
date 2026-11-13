@@ -1,0 +1,19 @@
+[package]
+name = "face-core"
+description = "Veriface contract logic: check catalogue, profiles, check evaluation, verification outcome. No ML, no I/O."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde-saphyr.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

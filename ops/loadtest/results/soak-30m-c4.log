@@ -1,0 +1,70 @@
+[14:16:14] start: http://127.0.0.1:18100 concurrency=4 duration=1800s mix=quality:2,document:1,verify:1 soak pid=10228 every 30s warmup=300s (29 selfies, 14 documents)
+[14:16:15] t=0s rss=1234.4MiB private=1227.0MiB threads=17 handles=205 requests=0
+[14:16:45] t=31s rss=1336.4MiB private=1319.5MiB threads=22 handles=216 requests=244
+[14:17:15] t=61s rss=1293.7MiB private=1276.7MiB threads=22 handles=214 requests=500
+[14:17:45] t=91s rss=1220.6MiB private=1203.6MiB threads=21 handles=213 requests=734
+[14:18:15] t=121s rss=1310.1MiB private=1293.1MiB threads=23 handles=215 requests=978
+[14:18:45] t=151s rss=1316.2MiB private=1299.2MiB threads=23 handles=215 requests=1269
+[14:19:15] t=181s rss=1319.9MiB private=1337.5MiB threads=21 handles=213 requests=1512
+[14:19:45] t=211s rss=1288.0MiB private=1271.0MiB threads=22 handles=214 requests=1786
+[14:20:16] t=242s rss=1261.7MiB private=1244.6MiB threads=21 handles=213 requests=2044
+[14:20:45] t=271s rss=1341.1MiB private=1329.2MiB threads=22 handles=215 requests=2221
+[14:21:15] t=301s rss=1314.3MiB private=1297.4MiB threads=23 handles=215 requests=2436
+[14:21:45] t=331s rss=1325.3MiB private=1308.5MiB threads=22 handles=214 requests=2706
+[14:22:15] t=361s rss=1338.2MiB private=1338.0MiB threads=23 handles=215 requests=2902
+[14:22:45] t=391s rss=1286.9MiB private=1269.9MiB threads=22 handles=214 requests=3176
+[14:23:16] t=422s rss=1216.1MiB private=1198.9MiB threads=21 handles=213 requests=3357
+[14:23:45] t=451s rss=1286.6MiB private=1269.8MiB threads=23 handles=216 requests=3529
+[14:24:15] t=481s rss=1286.0MiB private=1269.1MiB threads=23 handles=215 requests=3826
+[14:24:45] t=511s rss=1286.2MiB private=1269.2MiB threads=23 handles=215 requests=4029
+[14:25:15] t=541s rss=1286.3MiB private=1269.3MiB threads=23 handles=215 requests=4238
+[14:25:45] t=571s rss=1225.9MiB private=1209.7MiB threads=22 handles=214 requests=4448
+[14:26:16] t=601s rss=1214.9MiB private=1198.0MiB threads=22 handles=214 requests=4654
+[14:26:45] t=631s rss=1211.1MiB private=1243.6MiB threads=23 handles=215 requests=4842
+[14:27:15] t=661s rss=1237.4MiB private=1270.0MiB threads=23 handles=215 requests=5056
+[14:27:45] t=691s rss=1237.6MiB private=1270.1MiB threads=23 handles=215 requests=5238
+[14:28:15] t=721s rss=1211.1MiB private=1243.6MiB threads=22 handles=214 requests=5414
+[14:28:45] t=751s rss=1233.9MiB private=1266.5MiB threads=23 handles=215 requests=5616
+[14:29:15] t=781s rss=1173.4MiB private=1206.0MiB threads=22 handles=214 requests=5833
+[14:29:45] t=811s rss=1266.7MiB private=1299.6MiB threads=24 handles=217 requests=6014
+[14:30:15] t=841s rss=1189.2MiB private=1243.6MiB threads=22 handles=215 requests=6188
+[14:30:45] t=871s rss=1263.6MiB private=1296.4MiB threads=24 handles=216 requests=6440
+[14:31:15] t=901s rss=1165.8MiB private=1198.2MiB threads=22 handles=214 requests=6679
+[14:31:45] t=931s rss=1175.9MiB private=1209.6MiB threads=22 handles=214 requests=6915
+[14:32:15] t=961s rss=1237.4MiB private=1270.9MiB threads=23 handles=215 requests=7183
+[14:32:45] t=991s rss=1279.2MiB private=1312.9MiB threads=23 handles=216 requests=7428
+[14:33:15] t=1021s rss=1167.4MiB private=1201.1MiB threads=22 handles=214 requests=7664
+[14:33:45] t=1051s rss=1228.0MiB private=1261.9MiB threads=23 handles=215 requests=7865
+[14:34:15] t=1081s rss=1210.0MiB private=1243.6MiB threads=22 handles=214 requests=8130
+[14:34:45] t=1111s rss=1257.7MiB private=1291.5MiB threads=22 handles=214 requests=8345
+[14:35:15] t=1141s rss=1321.8MiB private=1355.6MiB threads=23 handles=215 requests=8563
+[14:35:45] t=1171s rss=1165.5MiB private=1198.9MiB threads=22 handles=214 requests=8835
+[14:36:15] t=1201s rss=1210.2MiB private=1243.7MiB threads=22 handles=214 requests=9167
+[14:36:45] t=1231s rss=1166.7MiB private=1200.6MiB threads=22 handles=214 requests=9501
+[14:37:15] t=1261s rss=1174.8MiB private=1209.0MiB threads=22 handles=214 requests=9827
+[14:37:45] t=1291s rss=1208.6MiB private=1242.7MiB threads=22 handles=214 requests=10140
+[14:38:15] t=1321s rss=1165.2MiB private=1199.1MiB threads=22 handles=214 requests=10346
+[14:38:46] t=1352s rss=1166.1MiB private=1199.9MiB threads=22 handles=214 requests=10521
+[14:39:15] t=1381s rss=1165.7MiB private=1199.5MiB threads=22 handles=215 requests=10741
+[14:39:45] t=1411s rss=1235.7MiB private=1269.8MiB threads=23 handles=215 requests=10992
+[14:40:15] t=1441s rss=1248.5MiB private=1283.4MiB threads=23 handles=216 requests=11239
+[14:40:45] t=1471s rss=1174.2MiB private=1208.5MiB threads=22 handles=214 requests=11457
+[14:41:15] t=1501s rss=1206.8MiB private=1240.8MiB threads=22 handles=214 requests=11757
+[14:41:45] t=1531s rss=1247.1MiB private=1282.1MiB threads=23 handles=215 requests=12018
+[14:42:15] t=1561s rss=1262.6MiB private=1297.1MiB threads=22 handles=214 requests=12268
+[14:42:45] t=1591s rss=1262.5MiB private=1297.1MiB threads=24 handles=216 requests=12481
+[14:43:15] t=1621s rss=1203.8MiB private=1239.4MiB threads=22 handles=214 requests=12775
+[14:43:45] t=1651s rss=1164.9MiB private=1199.1MiB threads=22 handles=214 requests=13051
+[14:44:15] t=1681s rss=1165.5MiB private=1199.7MiB threads=22 handles=214 requests=13303
+[14:44:45] t=1711s rss=1209.2MiB private=1243.6MiB threads=22 handles=215 requests=13626
+[14:45:15] t=1741s rss=1238.6MiB private=1273.0MiB threads=23 handles=215 requests=13931
+[14:45:45] t=1771s rss=1272.2MiB private=1306.6MiB threads=23 handles=215 requests=14220
+
+soak-30m-c4: 1800.6s at concurrency 4 (latency ms)
+endpoint  reqs   req/s  p50  p90   p95   p99   max   statuses   problems  results                                                        
+quality   7182   3.99   294  382   426   584   2452  200:7182   -         accepted:6442 rejected:740                                     
+document  3596   2      463  736   927   1222  2782  200:3596   -         rejected:1018 accepted:2578                                    
+verify    3661   2.03   860  1264  1501  1949  3541  200:3661   -         rejected:1414 review:1271 retake:833 verified:143              
+all       14439  8.02   365  995   1104  1568  3541  200:14439  -         accepted:9020 rejected:3172 review:1271 retake:833 verified:143
+memory: ok (limit 10%): rss 1326 -> 1225.3 MiB (-7.59%, peak 1338.2, slope -3.08 MiB/min); private 1314.6 -> 1259.7 MiB (-4.18%)
+exit=0

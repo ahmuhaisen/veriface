@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "facelab"
+version = "0.1.0"
+description = "Veriface lab: model conversion, golden outputs, evaluation and calibration. Internal, never shipped."
+requires-python = ">=3.12,<3.13"
+# Two environments (lab/README.md), because mediapipe 0.10.21 (protobuf<5, numpy<2) cannot share one with
+# tensorflow 2.21 / onnx 1.23 (protobuf>=6.31, numpy>=2):
+#   lab/.venv     core + [convert]  models fetch/build/bom, fidelity, INT8 experiment   requirements.lock.txt
+#   lab/.venv-mp  core + [mp]       testdata documents, golden, eval, parity             requirements-mp.lock.txt
+# onnxruntime is pinned to the service's runtime line (service: 1.28.2; PyPI has no 1.28.2 wheel, so 1.28.0).
+dependencies = [
+    "numpy",
+    "pillow",
+    "opencv-python-headless",
+    "scipy",
+    "pyyaml",
+    "jsonschema",
+    "requests",
+    "matplotlib",
+    "onnxruntime==1.28.0",
+]
+
+[project.optional-dependencies]
+convert = ["onnx", "tensorflow-cpu", "tf2onnx", "huggingface_hub"]
+# Telemetry-free MediaPipe only: newer builds send usage telemetry to Google (facelab/mptasks.py).
+mp = ["mediapipe==0.10.21"]
+dev = ["pytest", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "NPY"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

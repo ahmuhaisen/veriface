@@ -1,0 +1,477 @@
+{
+  "manifestVersion": 1,
+  "generatedAt": "2026-10-02T14:06:05Z",
+  "generator": "facelab 0.1.0",
+  "models": [
+    {
+      "id": "mp-face-detector-short",
+      "role": "face-detector",
+      "variant": "short-range",
+      "file": "mp-face-detector-short.onnx",
+      "sha256": "5c5522186e362e33b5daac863a8c87fa7d2d75bedcc426100a60ed256569ec55",
+      "bytes": 226030,
+      "format": "onnx",
+      "opset": 17,
+      "precision": "fp16",
+      "upstream": {
+        "name": "MediaPipe BlazeFace short-range",
+        "version": "float16/1",
+        "url": "https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite",
+        "sha256": "b4578f35940bf5a1a655214a1cce5cab13eba73c1297cd78e1a04c2380b0152f"
+      },
+      "conversion": {
+        "tool": "tf2onnx",
+        "toolVersion": "tf2onnx 1.17.0",
+        "command": "tf2onnx.convert.from_tflite('blaze_face_short_range.tflite', opset=17) with optimize_graph(optimizers={}); rename I/O; canonical internal names; batch=1",
+        "fidelity": "max abs diff vs tf.lite.Interpreter (TensorFlow-CPU) on the upstream TFLite: regressors 1.07e-02 (atol 2e-03, rtol 5e-05: 0.32 of budget), classificators 2.49e-02 (atol 1e-03, rtol 5e-05: 0.45 of budget); reference noise floor (TFLite XNNPACK vs TFLite builtin reference kernels): regressors 1.37e-02, classificators 3.32e-02; on 29 test images + 3 seeded random tensors"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/google-ai-edge/mediapipe/blob/master/LICENSE",
+        "trainingData": {
+          "statement": "Google in-house data. Model card (2021-06-09): 'trained and evaluated on consented images of people using a mobile AR application captured with smartphone cameras in various \"in the wild\" conditions'; 17 UN geographic subregions. No dataset size or public dataset named. Weights: 'LICENSED UNDER Apache License, Version 2.0'; no separate data licence or commercial restriction.",
+          "commercialUse": "allowed",
+          "source": "https://storage.googleapis.com/mediapipe-assets/MediaPipe%20BlazeFace%20Model%20Card%20(Short%20Range).pdf"
+        },
+        "attribution": "mp-face-detector-short: MediaPipe BlazeFace short-range, float16/1, from https://storage.googleapis.com/mediapipe-models/face_detector/blaze_face_short_range/float16/1/blaze_face_short_range.tflite. Copyright The MediaPipe Authors (Google). Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: converted from TFLite to ONNX with tf2onnx 1.17.0; graph input/output tensors renamed, internal tensor names canonicalised and the batch dimension fixed to 1; weights and operators unchanged."
+      },
+      "review": {
+        "status": "pending",
+        "notes": "Model card lists as out of scope: 'Any form of surveillance or identity recognition is explicitly out of scope and not enabled by this technology.' A statement of intended scope, not a licence term; our use (detection in a 1:1 verification pipeline) needs legal review against it. Card operating range: faces within ~2 m, face box sides >= 20% of the image."
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "input",
+            "dtype": "float32",
+            "shape": [
+              1,
+              128,
+              128,
+              3
+            ],
+            "layout": "NHWC",
+            "colorOrder": "RGB",
+            "valueRange": "(x-127.5)/127.5",
+            "description": "Whole image letterboxed to 128x128; padding = black."
+          }
+        ],
+        "outputs": [
+          {
+            "name": "regressors",
+            "dtype": "float32",
+            "shape": [
+              1,
+              896,
+              16
+            ],
+            "description": "Raw box + 6 keypoint offsets per anchor."
+          },
+          {
+            "name": "classificators",
+            "dtype": "float32",
+            "shape": [
+              1,
+              896,
+              1
+            ],
+            "description": "Raw score logit per anchor."
+          }
+        ]
+      },
+      "notes": "Short-range BlazeFace: faces within ~2 m, i.e. selfies. Identical bytes to the face_detector.tflite inside face_landmarker.task, so this is also the detector MediaPipe FaceLandmarker uses. ROI warp (MediaPipe ImageToTensor, OpenCV CPU path): take the rotated ROI rectangle in source pixels (center, width, height, rotation in radians, clockwise-positive in image coordinates since y points down); corners = cv::boxPoints order [bottom-left, top-left, top-right, bottom-right]; map them to tensor corners [(0,H),(0,0),(W,0),(W,H)] with a perspective (here affine) transform, i.e. corner-to-corner, not pixel-centre; sample the uint8 RGB source with bilinear interpolation (cv::warpPerspective, INTER_LINEAR) at integer tensor pixel coordinates; THEN normalise. Out-of-image pixels follow the border mode stated per model. keep_aspect_ratio=true: before the warp, the ROI is enlarged (never cropped) to the tensor aspect ratio, padding equally on both sides (PadRoi); padding fractions are needed to map outputs back. Border mode: BORDER_ZERO (black, which becomes -1.0 after normalisation). ROI = whole image, rotation 0. Anchors: num_layers 4, strides [8,16,16,16], input 128x128, min_scale 0.1484375, max_scale 0.75, anchor_offset 0.5/0.5, aspect_ratios [1.0], interpolated_scale_aspect_ratio 1.0, fixed_anchor_size true -> 16x16x2 + 8x8x6 = 896 anchors. Anchor generation (SsdAnchorsCalculator): for each layer l with stride s: feature map F = ceil(input/s); for y in 0..F, x in 0..F, emit anchors_per_cell anchors at center ((x+anchor_offset_x)/F, (y+anchor_offset_y)/F), w=h=1 (fixed_anchor_size). Consecutive layers with the same stride are merged into one feature map whose anchors_per_cell is the sum: with aspect_ratios=[1.0] and interpolated_scale_aspect_ratio=1.0 each layer contributes 2 anchors per cell, with interpolated_scale_aspect_ratio=0.0 it contributes 1. Order: layer group, then y, then x, then anchor index within the cell. Decoding (TensorsToDetectionsCalculator): regressors[0,i,:] = [dx, dy, w, h, kp0x, kp0y, ... kp5x, kp5y] (reverse_output_order=true, so x before y). With anchor (ax, ay) in [0,1] and scale S = input size: cx = ax + dx/S, cy = ay + dy/S, w = w/S, h = h/S (fixed_anchor_size: anchor w=h=1); keypoint k = (ax + kx/S, ay + ky/S). Score = sigmoid(clamp(classificators[0,i,0], -100, 100)); keep score >= min_score_thresh. Then NMS: algorithm WEIGHTED, overlap IoU, min_suppression_threshold 0.3 (Tasks default FaceDetectorOptions.min_suppression_threshold). Coordinates are normalised to the letterboxed tensor; remove the letterbox padding to get image-normalised values. Keypoints (subject = the person): 0 right eye (image-left), 1 left eye (image-right), 2 nose tip, 3 mouth centre, 4 right ear tragion, 5 left ear tragion. Scale S = 128. MediaPipe min_score_thresh default 0.5. Landmark ROI from a detection (FaceDetectorGraph -> FaceLandmarker): rect = detection box in image pixels; rotation = 0 - atan2(-(kp1.y - kp0.y), kp1.x - kp0.x) using pixel coordinates (DetectionsToRects, start keypoint 0, end keypoint 1, target angle 0), normalised to [-pi, pi]; then scale width and height by 1.5 around the centre (RectTransformation, square_long false). Precision: weights stored as fp16 (as upstream) and Cast to float32 inside the graph; all computation and every graph input/output is float32."
+    },
+    {
+      "id": "mp-face-detector-full",
+      "role": "face-detector",
+      "variant": "full-range",
+      "file": "mp-face-detector-full.onnx",
+      "sha256": "73d591a5447cc3fa29a2266625a2329d9ae285df1a8e2d5a81fdb788c9a653a5",
+      "bytes": 1080694,
+      "format": "onnx",
+      "opset": 17,
+      "precision": "fp16",
+      "upstream": {
+        "name": "MediaPipe BlazeFace full-range (legacy face_detection module)",
+        "version": "mediapipe-assets generation 1782183493595806 (external_files.bzl @ 45005ba4e320)",
+        "url": "https://storage.googleapis.com/mediapipe-assets/modules/face_detection/face_detection_full_range.tflite?generation=1782183493595806",
+        "sha256": "99bf9494d84f50acc6617d89873f71bf6635a841ea699c17cb3377f9507cfec3"
+      },
+      "conversion": {
+        "tool": "tf2onnx",
+        "toolVersion": "tf2onnx 1.17.0",
+        "command": "tf2onnx.convert.from_tflite('face_detection_full_range.tflite', opset=17) with optimize_graph(optimizers={}); rename I/O; canonical internal names; batch=1",
+        "fidelity": "max abs diff vs tf.lite.Interpreter (TensorFlow-CPU) on the upstream TFLite: regressors 1.68e-04 (atol 2e-03, rtol 5e-05: 0.04 of budget), classificators 2.15e-05 (atol 1e-03, rtol 5e-05: 0.02 of budget); reference noise floor (TFLite XNNPACK vs TFLite builtin reference kernels): regressors 2.14e-04, classificators 1.62e-05; on 29 test images + 3 seeded random tensors"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/google-ai-edge/mediapipe/blob/master/LICENSE",
+        "trainingData": {
+          "statement": "Google in-house data. Model card (2021-01-19): 'The dataset consists of 100+K images', 'consented images of people using a mobile AR application'; 17 UN geographic subregions. Weights: 'LICENSED UNDER Apache License, Version 2.0'; no separate data licence or commercial restriction.",
+          "commercialUse": "allowed",
+          "source": "https://storage.googleapis.com/mediapipe-assets/MediaPipe%20BlazeFace%20Model%20Card%20(Full%20Range).pdf"
+        },
+        "attribution": "mp-face-detector-full: MediaPipe BlazeFace full-range (legacy face_detection module), mediapipe-assets generation 1782183493595806 (external_files.bzl @ 45005ba4e320), from https://storage.googleapis.com/mediapipe-assets/modules/face_detection/face_detection_full_range.tflite?generation=1782183493595806. Copyright The MediaPipe Authors (Google). Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: converted from TFLite to ONNX with tf2onnx 1.17.0; graph input/output tensors renamed, internal tensor names canonicalised and the batch dimension fixed to 1; weights and operators unchanged."
+      },
+      "review": {
+        "status": "pending",
+        "notes": "Model card lists as out of scope: 'Any form of surveillance or identity recognition is explicitly out of scope and not enabled by this technology.' A statement of intended scope, not a licence term; our use (detection in a 1:1 verification pipeline) needs legal review against it. Card operating range: faces within ~5 m, face box sides >= 5% of the image."
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "input",
+            "dtype": "float32",
+            "shape": [
+              1,
+              192,
+              192,
+              3
+            ],
+            "layout": "NHWC",
+            "colorOrder": "RGB",
+            "valueRange": "(x-127.5)/127.5",
+            "description": "Whole image letterboxed to 192x192; padding = black."
+          }
+        ],
+        "outputs": [
+          {
+            "name": "regressors",
+            "dtype": "float32",
+            "shape": [
+              1,
+              2304,
+              16
+            ],
+            "description": "Raw box + 6 keypoint offsets per anchor."
+          },
+          {
+            "name": "classificators",
+            "dtype": "float32",
+            "shape": [
+              1,
+              2304,
+              1
+            ],
+            "description": "Raw score logit per anchor."
+          }
+        ]
+      },
+      "notes": "Full-range BlazeFace (dense variant): faces up to ~5 m; used for counting background faces and finding document portraits. Numerically identical to the Tasks test asset face_detection_full_range_with_metadata.tflite used for the goldens. ROI warp (MediaPipe ImageToTensor, OpenCV CPU path): take the rotated ROI rectangle in source pixels (center, width, height, rotation in radians, clockwise-positive in image coordinates since y points down); corners = cv::boxPoints order [bottom-left, top-left, top-right, bottom-right]; map them to tensor corners [(0,H),(0,0),(W,0),(W,H)] with a perspective (here affine) transform, i.e. corner-to-corner, not pixel-centre; sample the uint8 RGB source with bilinear interpolation (cv::warpPerspective, INTER_LINEAR) at integer tensor pixel coordinates; THEN normalise. Out-of-image pixels follow the border mode stated per model. keep_aspect_ratio=true: before the warp, the ROI is enlarged (never cropped) to the tensor aspect ratio, padding equally on both sides (PadRoi); padding fractions are needed to map outputs back. Border mode: BORDER_ZERO (black -> -1.0). ROI = whole image, rotation 0. Anchors: num_layers 1, strides [4], input 192x192, min_scale 0.1484375, max_scale 0.75, anchor_offset 0.5/0.5, aspect_ratios [1.0], interpolated_scale_aspect_ratio 0.0, fixed_anchor_size true -> 48x48x1 = 2304 anchors. Anchor generation (SsdAnchorsCalculator): for each layer l with stride s: feature map F = ceil(input/s); for y in 0..F, x in 0..F, emit anchors_per_cell anchors at center ((x+anchor_offset_x)/F, (y+anchor_offset_y)/F), w=h=1 (fixed_anchor_size). Consecutive layers with the same stride are merged into one feature map whose anchors_per_cell is the sum: with aspect_ratios=[1.0] and interpolated_scale_aspect_ratio=1.0 each layer contributes 2 anchors per cell, with interpolated_scale_aspect_ratio=0.0 it contributes 1. Order: layer group, then y, then x, then anchor index within the cell. Decoding (TensorsToDetectionsCalculator): regressors[0,i,:] = [dx, dy, w, h, kp0x, kp0y, ... kp5x, kp5y] (reverse_output_order=true, so x before y). With anchor (ax, ay) in [0,1] and scale S = input size: cx = ax + dx/S, cy = ay + dy/S, w = w/S, h = h/S (fixed_anchor_size: anchor w=h=1); keypoint k = (ax + kx/S, ay + ky/S). Score = sigmoid(clamp(classificators[0,i,0], -100, 100)); keep score >= min_score_thresh. Then NMS: algorithm WEIGHTED, overlap IoU, min_suppression_threshold 0.3 (Tasks default FaceDetectorOptions.min_suppression_threshold). Coordinates are normalised to the letterboxed tensor; remove the letterbox padding to get image-normalised values. Keypoints (subject = the person): 0 right eye (image-left), 1 left eye (image-right), 2 nose tip, 3 mouth centre, 4 right ear tragion, 5 left ear tragion. Scale S = 192. MediaPipe min_score_thresh 0.6 in the legacy graph; Tasks uses the caller's min_detection_confidence (default 0.5). Precision: weights stored as fp16 (as upstream) and Cast to float32 inside the graph; all computation and every graph input/output is float32."
+    },
+    {
+      "id": "mp-face-landmarker",
+      "role": "face-landmarker",
+      "variant": "face-mesh-v2",
+      "file": "mp-face-landmarker.onnx",
+      "sha256": "efb6c43047ff89f38ce375f02b7835211b10ad6e7bc077b8af2d50ef58abd21e",
+      "bytes": 2462078,
+      "format": "onnx",
+      "opset": 17,
+      "precision": "fp16",
+      "upstream": {
+        "name": "MediaPipe Face Landmarker (task bundle)",
+        "version": "float16/1",
+        "url": "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+        "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+        "file": "face_landmarks_detector.tflite"
+      },
+      "conversion": {
+        "tool": "tf2onnx",
+        "toolVersion": "tf2onnx 1.17.0",
+        "command": "tf2onnx.convert.from_tflite('face_landmarks_detector.tflite', opset=17) with optimize_graph(optimizers={}); rename I/O; canonical internal names; batch=1",
+        "fidelity": "max abs diff vs tf.lite.Interpreter (TensorFlow-CPU) on the upstream TFLite: landmarks 1.23e-03 (atol 1e-02, rtol 5e-05: 0.08 of budget), presence_logit 1.85e-04 (atol 2e-03, rtol 5e-05: 0.06 of budget), tongue_out 4.90e-05 (atol 1e-04, rtol 5e-05: 0.38 of budget); reference noise floor (TFLite XNNPACK vs TFLite builtin reference kernels): landmarks 2.06e-03, presence_logit 8.58e-05, tongue_out 2.85e-05; on 29 test images + 3 seeded random tensors"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/google-ai-edge/mediapipe/blob/master/LICENSE",
+        "trainingData": {
+          "statement": "Google in-house data. Model card (2022-09-15): images 'captured on a diverse set of smartphone cameras ... via an AR (Augmented Reality) application'; z from synthetic data. No dataset size; the card says nothing about consent. Weights: 'LICENSED UNDER Apache License, Version 2.0'.",
+          "commercialUse": "allowed",
+          "source": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20MediaPipe%20Face%20Mesh%20V2.pdf"
+        },
+        "attribution": "mp-face-landmarker: MediaPipe Face Landmarker (task bundle) (face_landmarks_detector.tflite from the bundle), float16/1, from https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task. Copyright The MediaPipe Authors (Google). Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: converted from TFLite to ONNX with tf2onnx 1.17.0; graph input/output tensors renamed, internal tensor names canonicalised and the batch dimension fixed to 1; weights and operators unchanged."
+      },
+      "review": {
+        "status": "pending",
+        "notes": "Card: 'Predicted face landmarks do not provide facial recognition or identification'; primary intended application 'AR entertainment'. No consent statement in the card."
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "input",
+            "dtype": "float32",
+            "shape": [
+              1,
+              256,
+              256,
+              3
+            ],
+            "layout": "NHWC",
+            "colorOrder": "RGB",
+            "valueRange": "x/255  ([0,1])",
+            "description": "Rotated face ROI warped to 256x256 (no letterbox)."
+          }
+        ],
+        "outputs": [
+          {
+            "name": "landmarks",
+            "dtype": "float32",
+            "shape": [
+              1,
+              1,
+              1,
+              1434
+            ],
+            "description": "478 x (x, y, z), flattened. x, y in tensor pixels (0..256); z in the same scale as x, relative to the face centre (smaller = closer to the camera)."
+          },
+          {
+            "name": "presence_logit",
+            "dtype": "float32",
+            "shape": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "description": "Face presence logit; presence = sigmoid(value), MediaPipe threshold min_face_presence_confidence (default 0.5)."
+          },
+          {
+            "name": "tongue_out",
+            "dtype": "float32",
+            "shape": [
+              1,
+              1
+            ],
+            "description": "Sigmoid score for 'tongue out of mouth'. Ignored by MediaPipe; do not rely on it."
+          }
+        ]
+      },
+      "notes": "MediaPipe Face Mesh v2 (face_landmarks_detector.tflite from face_landmarker.task). ROI warp (MediaPipe ImageToTensor, OpenCV CPU path): take the rotated ROI rectangle in source pixels (center, width, height, rotation in radians, clockwise-positive in image coordinates since y points down); corners = cv::boxPoints order [bottom-left, top-left, top-right, bottom-right]; map them to tensor corners [(0,H),(0,0),(W,0),(W,H)] with a perspective (here affine) transform, i.e. corner-to-corner, not pixel-centre; sample the uint8 RGB source with bilinear interpolation (cv::warpPerspective, INTER_LINEAR) at integer tensor pixel coordinates; THEN normalise. Out-of-image pixels follow the border mode stated per model. keep_aspect_ratio=false (ROI stretched to 256x256; MediaPipe ROIs are square here). Border mode: BORDER_REPLICATE. ROI from a detection: see mp-face-detector-short notes (box x1.5, rotation from keypoints 0->1). ROI from previous-frame landmarks (tracking; not used for still images): bounding box of all 478 landmarks, rotation from landmark 33 to 263 (target 0), scale 1.5, square_long true. Decoding (TensorsToLandmarks, normalize_z 1): landmark i = landmarks[3i..3i+3]; normalised x/256, y/256, z/256 within the ROI; then map through the ROI rect (rotate by roi.rotation around the ROI centre, scale by ROI width/height) to image-normalised coordinates; z is scaled by ROI width (LandmarkProjectionCalculator). Indices 468-472 = subject's right iris (468 centre, image-left eye), 473-477 = subject's left iris (473 centre, image-right eye). Alignment points for auraface-v1 (docs/architecture.md section 3.3): 468, 473, 1, 61, 291. Precision: weights stored as fp16 (as upstream) and Cast to float32 inside the graph; all computation and every graph input/output is float32."
+    },
+    {
+      "id": "mp-face-blendshapes",
+      "role": "face-blendshapes",
+      "variant": "blendshape-v2",
+      "file": "mp-face-blendshapes.onnx",
+      "sha256": "93a44f55da90e01ced04948634d74f834be8e7f0e77f954592741f1f412a6ba9",
+      "bytes": 917456,
+      "format": "onnx",
+      "opset": 17,
+      "precision": "fp16",
+      "upstream": {
+        "name": "MediaPipe Face Landmarker (task bundle)",
+        "version": "float16/1",
+        "url": "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+        "sha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+        "file": "face_blendshapes.tflite"
+      },
+      "conversion": {
+        "tool": "tf2onnx",
+        "toolVersion": "tf2onnx 1.17.0",
+        "command": "tf2onnx.convert.from_tflite('face_blendshapes.tflite', opset=17) with optimize_graph(optimizers={}); rename I/O; canonical internal names; batch=1",
+        "fidelity": "max abs diff vs tf.lite.Interpreter (TensorFlow-CPU) on the upstream TFLite: blendshapes 3.99e-06 (atol 1e-04, rtol 5e-05: 0.03 of budget); reference noise floor (TFLite XNNPACK vs TFLite builtin reference kernels): blendshapes 2.80e-06; on 29 test images + 3 seeded random tensors"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/google-ai-edge/mediapipe/blob/master/LICENSE",
+        "trainingData": {
+          "statement": "Google lab data. Model card (2022-11-11): 'All dataset samples were captured in a controlled environment in the lab' (multi-view captures fitted to GHUM meshes), 'trained on millions of samples generated with diverse identities'. Subject count and consent not stated. Weights: 'LICENSED UNDER Apache License, Version 2.0'.",
+          "commercialUse": "allowed",
+          "source": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Blendshape%20V2.pdf"
+        },
+        "attribution": "mp-face-blendshapes: MediaPipe Face Landmarker (task bundle) (face_blendshapes.tflite from the bundle), float16/1, from https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task. Copyright The MediaPipe Authors (Google). Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: converted from TFLite to ONNX with tf2onnx 1.17.0; graph input/output tensors renamed, internal tensor names canonicalised and the batch dimension fixed to 1; weights and operators unchanged."
+      },
+      "review": {
+        "status": "pending",
+        "notes": "Card: blendshapes 'do not provide facial recognition or identification'; primary intended application 'AR entertainment'. No consent statement in the card."
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "points",
+            "dtype": "float32",
+            "shape": [
+              1,
+              146,
+              2
+            ],
+            "description": "(x, y) of the 146-landmark subset, in pixels of the FULL input image (image-normalised landmark x * image width, y * image height)."
+          }
+        ],
+        "outputs": [
+          {
+            "name": "blendshapes",
+            "dtype": "float32",
+            "shape": [
+              52
+            ],
+            "description": "52 coefficients in [0,1], ARKit order; index 0 '_neutral' is to be ignored."
+          }
+        ]
+      },
+      "notes": "MediaPipe blendshape model (face_blendshapes.tflite from face_landmarker.task). No image input. Landmark subset (kLandmarksSubsetIdxs, in this order): 0,1,4,5,6,7,8,10,13,14,17,21,33,37,39,40,46,52,53,54,55,58,61,63,65,66,67,70,78,80,81,82,84,87,88,91,93,95,103,105,107,109,127,132,133,136,144,145,146,148,149,150,152,153,154,155,157,158,159,160,161,162,163,168,172,173,176,178,181,185,191,195,197,234,246,249,251,263,267,269,270,276,282,283,284,285,288,291,293,295,296,297,300,308,310,311,312,314,317,318,321,323,324,332,334,336,338,356,361,362,365,373,374,375,377,378,379,380,381,382,384,385,386,387,388,389,390,397,398,400,402,405,409,415,454,466,468,469,470,471,472,473,474,475,476,477. Output names (index order): _neutral, browDownLeft, browDownRight, browInnerUp, browOuterUpLeft, browOuterUpRight, cheekPuff, cheekSquintLeft, cheekSquintRight, eyeBlinkLeft, eyeBlinkRight, eyeLookDownLeft, eyeLookDownRight, eyeLookInLeft, eyeLookInRight, eyeLookOutLeft, eyeLookOutRight, eyeLookUpLeft, eyeLookUpRight, eyeSquintLeft, eyeSquintRight, eyeWideLeft, eyeWideRight, jawForward, jawLeft, jawOpen, jawRight, mouthClose, mouthDimpleLeft, mouthDimpleRight, mouthFrownLeft, mouthFrownRight, mouthFunnel, mouthLeft, mouthLowerDownLeft, mouthLowerDownRight, mouthPressLeft, mouthPressRight, mouthPucker, mouthRight, mouthRollLower, mouthRollUpper, mouthShrugLower, mouthShrugUpper, mouthSmileLeft, mouthSmileRight, mouthStretchLeft, mouthStretchRight, mouthUpperUpLeft, mouthUpperUpRight, noseSneerLeft, noseSneerRight. 'Left'/'Right' refer to the subject (eyeBlinkLeft = subject's left eye = image-right). Precision: weights stored as fp16 (as upstream) and Cast to float32 inside the graph; all computation and every graph input/output is float32."
+    },
+    {
+      "id": "mp-selfie-multiclass",
+      "role": "segmenter",
+      "variant": "selfie-multiclass-256",
+      "file": "mp-selfie-multiclass.onnx",
+      "sha256": "7ee613be72e1667a9f63d1d70879065f6a380d12231b66c2fb24bb8808d2ae83",
+      "bytes": 16326712,
+      "format": "onnx",
+      "opset": 17,
+      "precision": "fp32",
+      "upstream": {
+        "name": "MediaPipe selfie_multiclass_256x256",
+        "version": "float32/1",
+        "url": "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/1/selfie_multiclass_256x256.tflite",
+        "sha256": "c6748b1253a99067ef71f7e26ca71096cd449baefa8f101900ea23016507e0e0"
+      },
+      "conversion": {
+        "tool": "tf2onnx",
+        "toolVersion": "tf2onnx 1.17.0",
+        "command": "tf2onnx.convert.from_tflite('selfie_multiclass_256x256.tflite', opset=17) with optimize_graph(optimizers={}); rename I/O; canonical internal names; batch=1",
+        "fidelity": "max abs diff vs tf.lite.Interpreter (TensorFlow-CPU) on the upstream TFLite: logits 6.56e-05 (atol 2e-03, rtol 5e-05: 0.03 of budget); reference noise floor (TFLite XNNPACK vs TFLite builtin reference kernels): logits 8.10e-05; on 29 test images + 3 seeded random tensors"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/google-ai-edge/mediapipe/blob/master/LICENSE",
+        "trainingData": {
+          "statement": "Google data; source, size and consent are not described. The model card (2023-05-10) has a single training sentence that appears copied from the Blendshape card ('various blendshape combinations'), so it is not relied on. Weights: 'LICENSED UNDER Apache License, Version 2.0'.",
+          "commercialUse": "allowed",
+          "source": "https://storage.googleapis.com/mediapipe-assets/Model%20Card%20Multiclass%20Segmentation.pdf"
+        },
+        "attribution": "mp-selfie-multiclass: MediaPipe selfie_multiclass_256x256, float32/1, from https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/1/selfie_multiclass_256x256.tflite. Copyright The MediaPipe Authors (Google). Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: converted from TFLite to ONNX with tf2onnx 1.17.0; graph input/output tensors renamed, internal tensor names canonicalised and the batch dimension fixed to 1; weights and operators unchanged."
+      },
+      "review": {
+        "status": "pending",
+        "notes": "Model card lists as out of scope: 'Any form of surveillance or identity recognition is explicitly out of scope and not enabled by this technology.' A statement of intended scope, not a licence term; our use (detection in a 1:1 verification pipeline) needs legal review against it. Card fairness: mean IoU lowest for Monk tones 9+10 (68.25 vs 77.23 overall, 256 model, n=31)."
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "input",
+            "dtype": "float32",
+            "shape": [
+              1,
+              256,
+              256,
+              3
+            ],
+            "layout": "NHWC",
+            "colorOrder": "RGB",
+            "valueRange": "(x-127.5)/127.5",
+            "description": "Head-and-shoulders ROI warped to 256x256 (no letterbox)."
+          }
+        ],
+        "outputs": [
+          {
+            "name": "logits",
+            "dtype": "float32",
+            "shape": [
+              1,
+              256,
+              256,
+              6
+            ],
+            "layout": "NHWC",
+            "description": "Per-pixel class logits; apply softmax over the last axis. Classes: 0 background, 1 hair, 2 body-skin, 3 face-skin, 4 clothes, 5 others (accessories)."
+          }
+        ]
+      },
+      "notes": "MediaPipe selfie_multiclass_256x256 (ImageSegmenter). Labels from the model's packed labels.txt; activation SOFTMAX from its SEGMENTER_METADATA. No custom ops (TRANSPOSE_CONV is a builtin), so no op lowering was needed. ROI warp (MediaPipe ImageToTensor, OpenCV CPU path): take the rotated ROI rectangle in source pixels (center, width, height, rotation in radians, clockwise-positive in image coordinates since y points down); corners = cv::boxPoints order [bottom-left, top-left, top-right, bottom-right]; map them to tensor corners [(0,H),(0,0),(W,0),(W,H)] with a perspective (here affine) transform, i.e. corner-to-corner, not pixel-centre; sample the uint8 RGB source with bilinear interpolation (cv::warpPerspective, INTER_LINEAR) at integer tensor pixel coordinates; THEN normalise. Out-of-image pixels follow the border mode stated per model. keep_aspect_ratio=false (ROI stretched to 256x256). Border mode: BORDER_REPLICATE. MediaPipe Tasks resizes the 256x256 softmax output back to the ROI/image size with bilinear interpolation for its confidence masks; category_mask = argmax."
+    },
+    {
+      "id": "auraface-v1",
+      "role": "face-embedder",
+      "variant": "resnet100-arcface",
+      "file": "auraface-v1.onnx",
+      "sha256": "5f17c4fd0d28791c5273fae6c22fc2a8e6863b1321b84c569c8bcd530813e4d1",
+      "bytes": 260694219,
+      "format": "onnx",
+      "opset": 11,
+      "precision": "fp32",
+      "upstream": {
+        "name": "fal/AuraFace-v1 recognition model (glintr100.onnx)",
+        "version": "hf af6d057c9b0e",
+        "url": "https://huggingface.co/fal/AuraFace-v1/resolve/af6d057c9b0ec4071d4c49c80e3539258798b609/glintr100.onnx",
+        "sha256": "a7933ea5330113b01c9b60351d8f4c33003f145d8470ac5f0e52ee2effe25c60"
+      },
+      "conversion": {
+        "tool": "onnx (I/O rename only)",
+        "toolVersion": "onnx 1.23.1",
+        "command": "upstream ONNX; rename I/O; symbolic batch N",
+        "fidelity": "max abs diff vs the unmodified upstream ONNX on ONNX Runtime: embedding 0.00e+00 (atol 0e+00, rtol 5e-05: 0.00 of budget); on 29 test images + 3 seeded random tensors"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://huggingface.co/fal/AuraFace-v1/blob/main/LICENSE.md",
+        "trainingData": {
+          "statement": "fal.ai's model card states AuraFace 'was trained on a commercial dataset comprising face images from various sources' and 'on commercially and publicly available data sources to enable its usage in commercial setting'. The dataset is not named or published, so the training-data licence cannot be verified.",
+          "commercialUse": "unclear",
+          "source": "https://huggingface.co/fal/AuraFace-v1"
+        },
+        "attribution": "auraface-v1: fal/AuraFace-v1 recognition model (glintr100.onnx), revision af6d057c9b0ec4071d4c49c80e3539258798b609, from https://huggingface.co/fal/AuraFace-v1/resolve/af6d057c9b0ec4071d4c49c80e3539258798b609/glintr100.onnx. Copyright fal.ai. Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: graph input/output tensors renamed and the batch dimension made symbolic; weights and operators unchanged."
+      },
+      "review": {
+        "status": "pending",
+        "notes": "Training data undisclosed (ADR 0002): legal review required before general availability."
+      },
+      "io": {
+        "inputs": [
+          {
+            "name": "input",
+            "dtype": "float32",
+            "shape": [
+              "N",
+              3,
+              112,
+              112
+            ],
+            "layout": "NCHW",
+            "colorOrder": "RGB",
+            "valueRange": "(x-127.5)/127.5",
+            "description": "Face aligned to the standard 112x112 ArcFace 5-point template (docs/architecture.md section 3.3)."
+          }
+        ],
+        "outputs": [
+          {
+            "name": "embedding",
+            "dtype": "float32",
+            "shape": [
+              "N",
+              512
+            ],
+            "description": "Un-normalised 512-d embedding; L2-normalise, then cosine similarity."
+          }
+        ]
+      },
+      "notes": "fal/AuraFace-v1 recognition model ONLY (glintr100.onnx, PyTorch 2.3 export, opset 11). Shipped as the upstream graph with only its I/O tensors renamed (data -> input, 1333 -> embedding) and the batch dimension made symbolic; outputs are bit-identical to the upstream file. Normalisation and colour order follow InsightFace's ArcFaceONNX handling of graphs without a leading Sub/Mul (mean 127.5, std 127.5, swapRB from BGR, i.e. RGB input), as used by the AuraFace README. Not byte-identical to InsightFace antelopev2 glintr100.onnx (sha256 4ab1d643..., 260665334 bytes vs this 260694151 bytes). The other files in the AuraFace repository (scrfd_10g_bnkps, 2d106det, 1k3d68, genderage) are InsightFace's non-commercial models; scrfd_10g_bnkps.onnx is byte-identical to antelopev2's. They are never fetched."
+    }
+  ],
+  "assets": [
+    {
+      "id": "mp-canonical-face",
+      "file": "mp-canonical-face.json",
+      "sha256": "e11bd339c3f18bf30b59683abc32f7f1700ddf3e72c5a062c4aa068f64728a3b",
+      "bytes": 15379,
+      "upstream": {
+        "name": "MediaPipe canonical face model",
+        "version": "git 45005ba4e320",
+        "url": "https://raw.githubusercontent.com/google-ai-edge/mediapipe/45005ba4e32050ad1d387d3d783c853bb56d3cb7/mediapipe/modules/face_geometry/data/canonical_face_model.obj",
+        "sha256": "8bac80443397e113f41a8b565ea72c59390bc031d9defab289dba7bc0c54e618"
+      },
+      "licence": {
+        "spdx": "Apache-2.0",
+        "url": "https://github.com/google-ai-edge/mediapipe/blob/master/LICENSE",
+        "trainingData": {
+          "statement": "Geometry asset, not a trained model.",
+          "commercialUse": "allowed"
+        },
+        "attribution": "mp-canonical-face: MediaPipe canonical face model and MediaPipe face geometry pipeline metadata (Procrustes landmark weights), git 45005ba4e320, from https://raw.githubusercontent.com/google-ai-edge/mediapipe/45005ba4e32050ad1d387d3d783c853bb56d3cb7/mediapipe/modules/face_geometry/data/canonical_face_model.obj and https://raw.githubusercontent.com/google-ai-edge/mediapipe/45005ba4e32050ad1d387d3d783c853bb56d3cb7/mediapipe/modules/face_geometry/data/geometry_pipeline_metadata_landmarks.pbtxt. Copyright The MediaPipe Authors (Google). Licensed under the Apache License, Version 2.0. Modified by the Veriface authors: the 468 vertices and the 33 Procrustes landmark weights extracted into JSON."
+      },
+      "notes": "JSON: 'vertices' = the 468 OBJ vertices (cm; vertex i corresponds to landmark i), 'procrustesLandmarkBasis' = the 33 {landmark, weight} pairs MediaPipe uses for its weighted Procrustes fit, parsed from https://raw.githubusercontent.com/google-ai-edge/mediapipe/45005ba4e32050ad1d387d3d783c853bb56d3cb7/mediapipe/modules/face_geometry/data/geometry_pipeline_metadata_landmarks.pbtxt (sha256 55ca7c4c7bf195673b9d12a1b5d49d4b9c82b5ade8fed4b565496590866e359d). Pose angles and sign conventions: testdata/golden/README.md and contracts/checks.yaml."
+    }
+  ]
+}

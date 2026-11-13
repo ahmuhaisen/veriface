@@ -1,0 +1,73 @@
+# Veriface: systemd unit. Installed by install.sh to /etc/systemd/system/veriface.service.
+#
+# Layout:  /opt/veriface/releases/<version>/   one unpacked release tarball per version
+#          /opt/veriface/current -> releases/<version>
+#          /etc/veriface/config.toml, keys.toml   (root:veriface 0640)
+# Logs go to the journal (journalctl -u veriface).
+
+[Unit]
+Description=Veriface (face quality, document portraits, 1:1 verification)
+Documentation=file:///opt/veriface/current/install/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=veriface
+Group=veriface
+ExecStart=/opt/veriface/current/veriface run --config /etc/veriface/config.toml
+# SIGTERM: stop accepting, report not ready, let in-flight requests finish (request_timeout_ms + 5 s).
+KillSignal=SIGTERM
+TimeoutStopSec=45
+# The model check (SHA-256 of ~280 MB) and the warm-up take a few seconds.
+TimeoutStartSec=180
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=600
+StartLimitBurst=5
+
+# Resources (adjust to the host; see the sizing notes in README.md).
+LimitNOFILE=8192
+TasksMax=1024
+MemoryMax=6G
+
+# --- Hardening (systemd-analyze security veriface) -----------------------------------
+NoNewPrivileges=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+# Binding a port below 1024 instead: AmbientCapabilities=CAP_NET_BIND_SERVICE and
+# CapabilityBoundingSet=CAP_NET_BIND_SERVICE.
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+PrivateDevices=yes
+PrivateIPC=yes
+ProtectHostname=yes
+ProtectClock=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectProc=invisible
+# ProcSubset=pid would hide /proc/cpuinfo, which ONNX Runtime reads for the CPU topology.
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+RemoveIPC=yes
+UMask=0077
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged @mount @debug @cpu-emulation @obsolete @raw-io @reboot @swap
+SystemCallErrorNumber=EPERM
+# ONNX Runtime's CPU kernels do not need writable+executable memory; if a future ORT build
+# JIT-compiles kernels, this is the line to remove (the service then fails at warm-up, loudly).
+MemoryDenyWriteExecute=yes
+ReadOnlyPaths=/opt/veriface /etc/veriface
+# Optional: only these networks may connect (the integrating backends, a monitoring host).
+#IPAddressDeny=any
+#IPAddressAllow=localhost 10.0.1.0/24
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,30 @@
+[package]
+name = "face-document"
+description = "Document rectification, orientation search, portrait selection and document measurements."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[features]
+# Synthetic document scenes and fake face finders/analyzers, for tests in this crate and in
+# downstream crates (face-verify enables it as a dev-dependency). Never enabled in the service.
+test-support = []
+
+[dependencies]
+face-core.workspace = true
+face-imaging.workspace = true
+face-models.workspace = true
+face-quality.workspace = true
+image.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+# Real-model tests (ONNX Runtime, models, lab fixtures); they skip when those are absent.
+face-models = { workspace = true, features = ["test-support"] }
+serde_json.workspace = true
+
+[lints]
+workspace = true

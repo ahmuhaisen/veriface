@@ -1,0 +1,569 @@
+{
+  "label": "soak-30m-c4",
+  "startedAt": "2026-10-02T14:16:15.000Z",
+  "durationS": 1800.6,
+  "url": "http://127.0.0.1:18100",
+  "concurrency": 4,
+  "mix": "quality:2,document:1,verify:1",
+  "profile": "fixtures",
+  "output": false,
+  "host": {
+    "platform": "win32",
+    "node": "v26.7.0"
+  },
+  "summary": {
+    "quality": {
+      "requests": 7182,
+      "ok": 7182,
+      "throughputRps": 3.99,
+      "okRps": 3.99,
+      "latencyMs": {
+        "min": 185,
+        "p50": 294,
+        "p90": 382,
+        "p95": 426,
+        "p99": 584,
+        "max": 2452,
+        "mean": 302
+      },
+      "statuses": {
+        "200": 7182
+      },
+      "problemCodes": {},
+      "results": {
+        "accepted": 6442,
+        "rejected": 740
+      },
+      "transportErrors": {}
+    },
+    "document": {
+      "requests": 3596,
+      "ok": 3596,
+      "throughputRps": 2,
+      "okRps": 2,
+      "latencyMs": {
+        "min": 133,
+        "p50": 463,
+        "p90": 736,
+        "p95": 927,
+        "p99": 1222,
+        "max": 2782,
+        "mean": 503
+      },
+      "statuses": {
+        "200": 3596
+      },
+      "problemCodes": {},
+      "results": {
+        "rejected": 1018,
+        "accepted": 2578
+      },
+      "transportErrors": {}
+    },
+    "verify": {
+      "requests": 3661,
+      "ok": 3661,
+      "throughputRps": 2.03,
+      "okRps": 2.03,
+      "latencyMs": {
+        "min": 256,
+        "p50": 860,
+        "p90": 1264,
+        "p95": 1501,
+        "p99": 1949,
+        "max": 3541,
+        "mean": 879
+      },
+      "statuses": {
+        "200": 3661
+      },
+      "problemCodes": {},
+      "results": {
+        "rejected": 1414,
+        "review": 1271,
+        "retake": 833,
+        "verified": 143
+      },
+      "transportErrors": {}
+    },
+    "all": {
+      "requests": 14439,
+      "ok": 14439,
+      "throughputRps": 8.02,
+      "okRps": 8.02,
+      "latencyMs": {
+        "min": 133,
+        "p50": 365,
+        "p90": 995,
+        "p95": 1104,
+        "p99": 1568,
+        "max": 3541,
+        "mean": 498
+      },
+      "statuses": {
+        "200": 14439
+      },
+      "problemCodes": {},
+      "results": {
+        "accepted": 9020,
+        "rejected": 3172,
+        "review": 1271,
+        "retake": 833,
+        "verified": 143
+      },
+      "transportErrors": {}
+    }
+  },
+  "memory": {
+    "pid": 10228,
+    "samples": [
+      {
+        "t": 0,
+        "rss": 1294311424,
+        "private": 1286631424,
+        "threads": 17,
+        "handles": 205
+      },
+      {
+        "t": 31,
+        "rss": 1401339904,
+        "private": 1383587840,
+        "threads": 22,
+        "handles": 216
+      },
+      {
+        "t": 61,
+        "rss": 1356582912,
+        "private": 1338712064,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 91,
+        "rss": 1279881216,
+        "private": 1262063616,
+        "threads": 21,
+        "handles": 213
+      },
+      {
+        "t": 121,
+        "rss": 1373753344,
+        "private": 1355915264,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 151,
+        "rss": 1380106240,
+        "private": 1362345984,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 181,
+        "rss": 1384054784,
+        "private": 1402421248,
+        "threads": 21,
+        "handles": 213
+      },
+      {
+        "t": 211,
+        "rss": 1350569984,
+        "private": 1332776960,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 242,
+        "rss": 1323008000,
+        "private": 1305100288,
+        "threads": 21,
+        "handles": 213
+      },
+      {
+        "t": 271,
+        "rss": 1406234624,
+        "private": 1393774592,
+        "threads": 22,
+        "handles": 215
+      },
+      {
+        "t": 301,
+        "rss": 1378189312,
+        "private": 1360445440,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 331,
+        "rss": 1389715456,
+        "private": 1372094464,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 361,
+        "rss": 1403224064,
+        "private": 1402970112,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 391,
+        "rss": 1349378048,
+        "private": 1331630080,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 422,
+        "rss": 1275203584,
+        "private": 1257144320,
+        "threads": 21,
+        "handles": 213
+      },
+      {
+        "t": 451,
+        "rss": 1349124096,
+        "private": 1331523584,
+        "threads": 23,
+        "handles": 216
+      },
+      {
+        "t": 481,
+        "rss": 1348423680,
+        "private": 1330696192,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 511,
+        "rss": 1348661248,
+        "private": 1330847744,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 541,
+        "rss": 1348743168,
+        "private": 1330913280,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 571,
+        "rss": 1285435392,
+        "private": 1268465664,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 601,
+        "rss": 1273966592,
+        "private": 1256173568,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 631,
+        "rss": 1269944320,
+        "private": 1303994368,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 661,
+        "rss": 1297547264,
+        "private": 1331732480,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 691,
+        "rss": 1297666048,
+        "private": 1331777536,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 721,
+        "rss": 1269956608,
+        "private": 1304059904,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 751,
+        "rss": 1293840384,
+        "private": 1328005120,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 781,
+        "rss": 1230397440,
+        "private": 1264590848,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 811,
+        "rss": 1328242688,
+        "private": 1362677760,
+        "threads": 24,
+        "handles": 217
+      },
+      {
+        "t": 841,
+        "rss": 1246920704,
+        "private": 1304031232,
+        "threads": 22,
+        "handles": 215
+      },
+      {
+        "t": 871,
+        "rss": 1325031424,
+        "private": 1359331328,
+        "threads": 24,
+        "handles": 216
+      },
+      {
+        "t": 901,
+        "rss": 1222430720,
+        "private": 1256361984,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 931,
+        "rss": 1233014784,
+        "private": 1268318208,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 961,
+        "rss": 1297461248,
+        "private": 1332658176,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 991,
+        "rss": 1341370368,
+        "private": 1376636928,
+        "threads": 23,
+        "handles": 216
+      },
+      {
+        "t": 1021,
+        "rss": 1224114176,
+        "private": 1259433984,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1051,
+        "rss": 1287630848,
+        "private": 1323155456,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 1081,
+        "rss": 1268768768,
+        "private": 1304027136,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1111,
+        "rss": 1318813696,
+        "private": 1354211328,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1141,
+        "rss": 1386033152,
+        "private": 1421434880,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 1171,
+        "rss": 1222115328,
+        "private": 1257095168,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1201,
+        "rss": 1268940800,
+        "private": 1304068096,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1231,
+        "rss": 1223344128,
+        "private": 1258950656,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1261,
+        "rss": 1231880192,
+        "private": 1267740672,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1291,
+        "rss": 1267347456,
+        "private": 1303052288,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1321,
+        "rss": 1221820416,
+        "private": 1257340928,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1352,
+        "rss": 1222742016,
+        "private": 1258217472,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1381,
+        "rss": 1222316032,
+        "private": 1257803776,
+        "threads": 22,
+        "handles": 215
+      },
+      {
+        "t": 1411,
+        "rss": 1295708160,
+        "private": 1331478528,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 1441,
+        "rss": 1309155328,
+        "private": 1345691648,
+        "threads": 23,
+        "handles": 216
+      },
+      {
+        "t": 1471,
+        "rss": 1231253504,
+        "private": 1267175424,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1501,
+        "rss": 1265471488,
+        "private": 1301049344,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1531,
+        "rss": 1307627520,
+        "private": 1344352256,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 1561,
+        "rss": 1323982848,
+        "private": 1360093184,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1591,
+        "rss": 1323806720,
+        "private": 1360068608,
+        "threads": 24,
+        "handles": 216
+      },
+      {
+        "t": 1621,
+        "rss": 1262305280,
+        "private": 1299640320,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1651,
+        "rss": 1221459968,
+        "private": 1257332736,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1681,
+        "rss": 1222115328,
+        "private": 1257996288,
+        "threads": 22,
+        "handles": 214
+      },
+      {
+        "t": 1711,
+        "rss": 1267982336,
+        "private": 1303998464,
+        "threads": 22,
+        "handles": 215
+      },
+      {
+        "t": 1741,
+        "rss": 1298776064,
+        "private": 1334841344,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 1771,
+        "rss": 1333981184,
+        "private": 1370091520,
+        "threads": 23,
+        "handles": 215
+      },
+      {
+        "t": 1801,
+        "rss": 1221722112,
+        "private": 1257603072,
+        "threads": 22,
+        "handles": 214
+      }
+    ],
+    "analysis": {
+      "verdict": "ok",
+      "limitPct": 10,
+      "samplesAfterWarmup": 51,
+      "baselineSamples": 3,
+      "rss": {
+        "baselineMiB": 1326,
+        "endMiB": 1225.3,
+        "peakMiB": 1338.2,
+        "growthPct": -7.59,
+        "slopeMiBPerMin": -3.08
+      },
+      "private": {
+        "baselineMiB": 1314.6,
+        "endMiB": 1259.7,
+        "peakMiB": 1355.6,
+        "growthPct": -4.18,
+        "slopeMiBPerMin": -1.11
+      }
+    }
+  }
+}
